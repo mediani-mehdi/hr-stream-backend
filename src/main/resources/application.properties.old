@@ -9,7 +9,7 @@ spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/$
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME:${POSTGRES_USER:${DB_USER:postgres}}}
 spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:${POSTGRES_PASSWORD:${DB_PASSWORD:123654}}}
 spring.jpa.hibernate.ddl-auto=update
-spirng.jpa.show-sql=true
+spring.jpa.show-sql=true
 
 # MinIO (S3 SDK)
 #s3.endpoint=${S3_ENDPOINT:http://localhost:9000}
@@ -19,16 +19,9 @@ spirng.jpa.show-sql=true
 #s3.region=${S3_REGION:us-east-1}
 
 # Security Configuration
-jwt.secret=${JWT_SECRET:MySecretKey123!@$%^&*()_+{}|:<>?[]\\,./}
+jwt.secret=${JWT_SECRET:6504789973bec46cbc0d38bd4c1bdf4e724638be4c674460320a21bacb027c43}
 jwt.expiration=${JWT_EXPIRATION:3600000}
 
 # Gemini / Google GenAI
-# Replace YOUR_API_KEY with your actual Google Gemini API key
-gemini.api.key=${GEMINI_API_KEY:YOUR_API_KEY}
-# Optional custom API base URL if not using default from Spring AI
-# gemini.api.url=${GEMINI_API_URL:https://generativelanguage.googleapis.com}
-
-# Replace YOUR_PROJECT_ID with your actual Google Cloud Project ID
-spring.ai.google.genai.project-id=${SPRING_AI_GOOGLE_GENAI_PROJECT_ID:test}
-spring.ai.google.genai.api-key=${GEMINI_API_KEY:AIzaSyAw-YeewdPcscM8SE3nro4Q6m9wamd6e_E}
-spring.ai.google.genai.chat.options.model=${SPRING_AI_GOOGLE_GENAI_MODEL:gemini-1.5-flash}
+gemini.api-key=AIzaSyAw-YeewdPcscM8SE3nro4Q6m9wamd6e_E
+gemini.model=gemini-3-flash-preview

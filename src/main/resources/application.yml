@@ -1,0 +1,82 @@
+spring:
+  application:
+    name: hr-stream
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: HrStreamHikari
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 600000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
+
+  data:
+    redis:
+      client-type: lettuce
+
+  cache:
+    type: redis
+
+server:
+  port: 8090
+  forward-headers-strategy: framework
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# App-specific configuration
+jwt:
+  secret: ${JWT_SECRET:change_me_in_prod}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Cors configuration
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,PATCH,DELETE,OPTIONS}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type,X-Auth-Token}
+  exposed-headers: ${CORS_EXPOSED_HEADERS:X-Auth-Token}
+
+# MinIO configuration
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minio_admin}
+  secret-key: ${MINIO_SECRET_KEY:minio_admin_password_123}
+  bucket: ${MINIO_BUCKET_NAME:ats-resumes}
+  region: ${MINIO_REGION:us-east-1}
+
+# Gemini API configuration
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.0-flash}
+  # Very lightweight, client-side pacing (the code should enforce this)
+  rate-limit:
+    requests-per-minute: ${GEMINI_RPM:60}
+
