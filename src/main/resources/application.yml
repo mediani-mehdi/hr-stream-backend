@@ -67,9 +67,9 @@ cors:
 # MinIO configuration
 minio:
   endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-  access-key: ${MINIO_ACCESS_KEY:minio_admin}
-  secret-key: ${MINIO_SECRET_KEY:minio_admin_password_123}
-  bucket: ${MINIO_BUCKET_NAME:ats-resumes}
+  access-key: ${MINIO_ACCESS_KEY:admin}
+  secret-key: ${MINIO_SECRET_KEY:admin123}
+  bucket: ${MINIO_BUCKET:ats-resumes}
   region: ${MINIO_REGION:us-east-1}
 
 # Gemini API configuration
@@ -79,4 +79,3 @@ gemini:
   # Very lightweight, client-side pacing (the code should enforce this)
   rate-limit:
     requests-per-minute: ${GEMINI_RPM:60}
-

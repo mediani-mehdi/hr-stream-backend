@@ -33,8 +33,6 @@ public class CandidateController {
             @RequestPart("candidate") String candidateJson,
             @RequestPart("resume") MultipartFile resume
     ) throws com.fasterxml.jackson.core.JsonProcessingException {
-        // Manually parse JSON to avoid "Content-Type 'application/octet-stream' is not supported"
-        // if the client doesn't set content-type for the candidate part correctly.
         com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         Candidate candidate = mapper.readValue(candidateJson, Candidate.class);
         return ResponseEntity.ok(candidateService.applyWithResume(token, candidate, resume));
@@ -66,10 +64,47 @@ public class CandidateController {
         return ResponseEntity.noContent().build();
     }
 
+    // ── CV Endpoints: /api/candidates/{candidateId}/cv ───────────────
+
+    /**
+     * Upload a CV for a candidate.
+     * Accepts multipart file (PDF or Word only, max 10MB).
+     * Stores in MinIO under key: cvs/{candidateId}/{UUID}.{ext}
+     * Saves reference in PostgreSQL.
+     */
+    @PostMapping(value = "/{candidateId}/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CvResponse> uploadCv(
+            @PathVariable String candidateId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        CvResponse response = candidateService.uploadCv(candidateId, file);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get the active CV for a candidate.
+     * Returns a presigned URL valid for 1 hour.
+     */
+    @GetMapping("/{candidateId}/cv")
+    public ResponseEntity<CvResponse> getCv(@PathVariable String candidateId) {
+        CvResponse response = candidateService.getCv(candidateId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Delete the CV for a candidate.
+     * Deletes the file from MinIO and clears the record in PostgreSQL.
+     */
+    @DeleteMapping("/{candidateId}/cv")
+    public ResponseEntity<Void> deleteCv(@PathVariable String candidateId) {
+        candidateService.deleteCv(candidateId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ── Legacy endpoint (kept for backward compatibility) ────────────
+
     @GetMapping("/{id}/resume")
     public ResponseEntity<String> getResume(@PathVariable String id) {
-        // Returns the URL to view the resume. For direct streaming, we would return ByteArrayResource.
-        // Assuming client redirects or displays the URL.
         return ResponseEntity.ok(candidateService.getResumeUrl(id));
     }
 }

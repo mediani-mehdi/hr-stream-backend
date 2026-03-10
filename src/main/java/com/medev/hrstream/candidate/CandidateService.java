@@ -46,7 +46,7 @@ public class CandidateService {
                 .orElseGet(() -> candidateRepository.save(candidateData));
 
         // 2) Upload resume and store metadata on candidate
-        ResumeStorageService.StoredObject stored = resumeStorageService.uploadCandidateResume(candidate.getId(), resume);
+        ResumeStorageService.StoredObject stored = resumeStorageService.uploadCandidateCv(candidate.getId(), resume);
         candidate.setResumeObjectKey(stored.objectKey());
         candidate.setResumeUrl(stored.url());
         candidate.setResumeOriginalName(stored.originalName());
@@ -63,6 +63,87 @@ public class CandidateService {
                 .application(application)
                 .build();
     }
+
+    // ── CV-specific operations ───────────────────────────────────────
+
+    /**
+     * Upload a CV for a candidate. Replaces any existing CV.
+     */
+    public CvResponse uploadCv(String candidateId, MultipartFile file) {
+        Candidate candidate = findById(candidateId);
+
+        // If there's an existing CV, delete it from MinIO first
+        if (candidate.getResumeObjectKey() != null) {
+            try {
+                resumeStorageService.deleteCv(candidate.getResumeObjectKey());
+            } catch (Exception e) {
+                // Log but don't fail — the old file might already be gone
+            }
+        }
+
+        ResumeStorageService.StoredObject stored = resumeStorageService.uploadCandidateCv(candidateId, file);
+
+        candidate.setResumeObjectKey(stored.objectKey());
+        candidate.setResumeUrl(null); // Don't cache presigned URL — always generate fresh
+        candidate.setResumeOriginalName(stored.originalName());
+        candidate.setResumeContentType(stored.contentType());
+        candidate.setResumeSizeBytes(stored.sizeBytes());
+        candidateRepository.save(candidate);
+
+        return new CvResponse(
+                stored.objectKey(),
+                stored.originalName(),
+                stored.contentType(),
+                stored.sizeBytes(),
+                stored.url()
+        );
+    }
+
+    /**
+     * Get a fresh presigned URL for the candidate's active CV.
+     */
+    public CvResponse getCv(String candidateId) {
+        Candidate candidate = findById(candidateId);
+
+        if (candidate.getResumeObjectKey() == null) {
+            throw new RuntimeException("No CV found for candidate: " + candidateId);
+        }
+
+        // Always generate a fresh presigned URL (valid for 1 hour)
+        String freshUrl = resumeStorageService.getCvViewUrl(candidate.getResumeObjectKey());
+
+        return new CvResponse(
+                candidate.getResumeObjectKey(),
+                candidate.getResumeOriginalName(),
+                candidate.getResumeContentType(),
+                candidate.getResumeSizeBytes(),
+                freshUrl
+        );
+    }
+
+    /**
+     * Delete the candidate's CV from MinIO and clear the DB reference.
+     */
+    public void deleteCv(String candidateId) {
+        Candidate candidate = findById(candidateId);
+
+        if (candidate.getResumeObjectKey() == null) {
+            throw new RuntimeException("No CV found for candidate: " + candidateId);
+        }
+
+        // Delete from MinIO
+        resumeStorageService.deleteCv(candidate.getResumeObjectKey());
+
+        // Clear resume fields (mark as inactive)
+        candidate.setResumeObjectKey(null);
+        candidate.setResumeUrl(null);
+        candidate.setResumeOriginalName(null);
+        candidate.setResumeContentType(null);
+        candidate.setResumeSizeBytes(null);
+        candidateRepository.save(candidate);
+    }
+
+    // ── Existing CRUD operations ─────────────────────────────────────
 
     public Page<Candidate> findAll(int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("desc")
@@ -99,15 +180,15 @@ public class CandidateService {
         candidateRepository.deleteById(id);
     }
 
+    /**
+     * @deprecated Use {@link #getCv(String)} instead for fresh presigned URLs.
+     */
+    @Deprecated
     public String getResumeUrl(String candidateId) {
         Candidate candidate = findById(candidateId);
         if (candidate.getResumeObjectKey() == null) {
             throw new RuntimeException("No resume found for candidate: " + candidateId);
         }
-        // If we stored a public/accessible URL, use it. Otherwise, generate a view URL.
-        if (candidate.getResumeUrl() != null && !candidate.getResumeUrl().isBlank()) {
-            return candidate.getResumeUrl();
-        }
-        return resumeStorageService.getResumeViewUrl(candidate.getResumeObjectKey());
+        return resumeStorageService.getCvViewUrl(candidate.getResumeObjectKey());
     }
 }

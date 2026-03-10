@@ -1,23 +1,38 @@
 package com.medev.hrstream.file;
 
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.http.Method;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.Duration;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Resume storage service using MinIO.
+ * Resume/CV storage service using S3 (compatible with MinIO).
  *
- * This service uploads resumes to a MinIO bucket and provides presigned URLs for secure access.
+ * Handles upload, presigned URL generation, and deletion of CV files.
  */
 @Service
 public class ResumeStorageService {
+
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+
+    private static final Set<String> ALLOWED_EXTENSIONS = Set.of(
+            "pdf", "doc", "docx"
+    );
 
     public record StoredObject(
             String bucket,
@@ -28,47 +43,56 @@ public class ResumeStorageService {
             long sizeBytes
     ) {}
 
-    private final MinioClient minioClient;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
     private final MinioProperties properties;
 
-    public ResumeStorageService(MinioClient minioClient, MinioProperties properties) {
-        this.minioClient = minioClient;
+    public ResumeStorageService(S3Client s3Client, MinioProperties properties) {
+        this.s3Client = s3Client;
         this.properties = properties;
+        this.s3Presigner = S3Presigner.builder()
+                .endpointOverride(java.net.URI.create(properties.getEndpoint()))
+                .region(software.amazon.awssdk.regions.Region.of(properties.getRegion()))
+                .credentialsProvider(software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
+                        software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create(
+                                properties.getAccessKey(), properties.getSecretKey()
+                        )
+                ))
+                .build();
     }
 
-    public StoredObject uploadCandidateResume(String candidateId, MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Resume file is required");
-        }
+    /**
+     * Validates and uploads a candidate's CV to S3.
+     *
+     * @param candidateId the candidate ID
+     * @param file        the multipart file to upload
+     * @return metadata about the stored object
+     */
+    public StoredObject uploadCandidateCv(String candidateId, MultipartFile file) {
+        validateFile(file);
 
         String bucket = properties.getBucket();
-
         String original = file.getOriginalFilename() == null ? "resume" : file.getOriginalFilename();
-        String ext = "";
-        int idx = original.lastIndexOf('.');
-        if (idx > -1 && idx < original.length() - 1) {
-            ext = original.substring(idx);
-        }
+        String ext = extractExtension(original);
 
         String objectKey = String.format(
-                "resumes/%s/%s%s",
+                "cvs/%s/%s.%s",
                 candidateId,
                 UUID.randomUUID(),
                 ext
         );
 
         try (InputStream in = file.getInputStream()) {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
+            s3Client.putObject(
+                    PutObjectRequest.builder()
                             .bucket(bucket)
-                            .object(objectKey)
+                            .key(objectKey)
                             .contentType(file.getContentType())
-                            .stream(in, file.getSize(), -1)
-                            .build()
+                            .build(),
+                    software.amazon.awssdk.core.sync.RequestBody.fromInputStream(in, file.getSize())
             );
 
-            // Generate a presigned URL that is valid for 1 hour for immediate use if needed
-            String presignedUrl = getResumeViewUrl(objectKey);
+            String presignedUrl = getCvViewUrl(objectKey);
 
             return new StoredObject(
                     bucket,
@@ -79,22 +103,83 @@ public class ResumeStorageService {
                     file.getSize()
             );
         } catch (Exception e) {
-            throw new RuntimeException("Failed to upload resume to MinIO", e);
+            throw new RuntimeException("Failed to upload CV to S3", e);
         }
     }
 
-    public String getResumeViewUrl(String objectKey) {
+    /**
+     * Generates a presigned GET URL valid for 1 hour.
+     */
+    public String getCvViewUrl(String objectKey) {
         try {
-            return minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.GET)
+            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                    .bucket(properties.getBucket())
+                    .key(objectKey)
+                    .build();
+
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofHours(1))
+                    .getObjectRequest(getObjectRequest)
+                    .build();
+
+            return s3Presigner.presignGetObject(presignRequest).url().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate presigned URL for CV", e);
+        }
+    }
+
+    /**
+     * Deletes a CV object from S3.
+     */
+    public void deleteCv(String objectKey) {
+        try {
+            s3Client.deleteObject(
+                    DeleteObjectRequest.builder()
                             .bucket(properties.getBucket())
-                            .object(objectKey)
-                            .expiry(1, TimeUnit.HOURS)
+                            .key(objectKey)
                             .build()
             );
         } catch (Exception e) {
-            throw new RuntimeException("Failed to generate presigned URL for resume", e);
+            throw new RuntimeException("Failed to delete CV from S3", e);
         }
+    }
+
+    // ── Private helpers ──────────────────────────────────────────────
+
+    private void validateFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("CV file is required");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new IllegalArgumentException("CV file exceeds the maximum allowed size of 10 MB");
+        }
+
+        // Validate content type
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new IllegalArgumentException(
+                    "Invalid file type. Only PDF and Word documents (pdf, doc, docx) are allowed"
+            );
+        }
+
+        // Also validate extension as a secondary check
+        String originalName = file.getOriginalFilename();
+        if (originalName != null) {
+            String ext = extractExtension(originalName).toLowerCase();
+            if (!ALLOWED_EXTENSIONS.contains(ext)) {
+                throw new IllegalArgumentException(
+                        "Invalid file extension. Only .pdf, .doc, and .docx are allowed"
+                );
+            }
+        }
+    }
+
+    private String extractExtension(String filename) {
+        int idx = filename.lastIndexOf('.');
+        if (idx > -1 && idx < filename.length() - 1) {
+            return filename.substring(idx + 1);
+        }
+        return "bin";
     }
 }
