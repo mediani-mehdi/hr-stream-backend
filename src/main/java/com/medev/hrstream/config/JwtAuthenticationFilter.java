@@ -1,7 +1,7 @@
 package com.medev.hrstream.config;
 
 import com.medev.hrstream.security.JwtService;
-import com.medev.hrstream.user.UserService;
+import com.medev.hrstream.user.CompositeUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,11 +18,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserService userDetailsService;
+    private final CompositeUserDetailsService userDetailsService;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            UserService userDetailsService) {
+            CompositeUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }

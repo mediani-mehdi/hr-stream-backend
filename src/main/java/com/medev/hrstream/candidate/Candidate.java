@@ -24,6 +24,8 @@ public class Candidate {
     private String lastName;
     @Column(unique = true, nullable = false)
     private String email;
+    @Column(nullable = false)
+    private String password;
     private String phone;
     private String niveauEtude;
     private String domaineExpertise;

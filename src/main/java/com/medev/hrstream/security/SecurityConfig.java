@@ -1,7 +1,7 @@
 package com.medev.hrstream.security;
 
 import com.medev.hrstream.config.JwtAuthenticationFilter;
-import com.medev.hrstream.user.UserService;
+import com.medev.hrstream.user.CompositeUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,18 +27,18 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserService userService;
+    private final CompositeUserDetailsService compositeUserDetailsService;
     private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
     private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            UserService userService,
+            CompositeUserDetailsService compositeUserDetailsService,
             RestAuthenticationEntryPoint restAuthenticationEntryPoint,
             RestAccessDeniedHandler restAccessDeniedHandler
     ) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userService = userService;
+        this.compositeUserDetailsService = compositeUserDetailsService;
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
         this.restAccessDeniedHandler = restAccessDeniedHandler;
     }
@@ -57,6 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/auth/welcome", "/auth/login", "/auth/register","/auth/forgot-password","/auth/reset-password").permitAll()
+                        .requestMatchers("/candidate/auth/**").permitAll()
                         .requestMatchers("/candidates/apply/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -80,7 +81,7 @@ public class SecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
+        provider.setUserDetailsService(compositeUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
