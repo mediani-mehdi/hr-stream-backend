@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
@@ -34,4 +34,8 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    // Forgot password / reset password
+    private String passwordResetTokenHash;
+    private LocalDateTime passwordResetExpiresAt;
 }

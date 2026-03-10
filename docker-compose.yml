@@ -5,83 +5,137 @@ services:
     image: postgres:16-alpine
     container_name: ats_postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-hr_stream}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password_123}
+      POSTGRES_DB: hr_stream
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123654
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - ats-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   minio:
     image: minio/minio:latest
     container_name: ats_minio
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_admin_password_123}
+      MINIO_ROOT_USER: admin           # ← SIMPLE USERNAME
+      MINIO_ROOT_PASSWORD: admin123    # ← SIMPLE PASSWORD
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9000"  # API endpoint
+      - "9001:9001"  # Web UI (Console)
     volumes:
-      - minio-data:/data
+      - minio_data:/data
     networks:
       - ats-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: unless-stopped
 
+  # Use this service to set up MinIO (create bucket, policies)
   minio-setup:
     image: minio/mc:latest
     container_name: ats_minio_setup
     depends_on:
-      - minio
-    entrypoint: ["/bin/sh", "-c"]
-    command: >-
-      "
-      set -e;
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
       echo 'Waiting for MinIO to be ready...';
-      until mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
-        echo '...waiting for minio to start...';
-        sleep 3;
-      done;
-      echo 'MinIO is ready, configuring bucket...';
-      mc mb -p myminio/${MINIO_BUCKET_NAME:-ats-resumes} || echo 'Bucket may already exist';
-      mc anonymous set private myminio/${MINIO_BUCKET_NAME:-ats-resumes};
-      echo 'Bucket created and set to private';
+      sleep 10;
+      
+      echo 'Setting up MinIO alias...';
+      /usr/bin/mc alias set myminio http://minio:9000 admin admin123;
+      
+      echo 'Creating bucket if it does not exist...';
+      /usr/bin/mc mb myminio/ats-resumes || true;
+      
+      echo 'Setting bucket policy to private...';
+      /usr/bin/mc anonymous set private myminio/ats-resumes;
+      
+      echo 'Creating application user...';
+      /usr/bin/mc admin user add myminio appuser appuser123;
+      
+      echo 'Creating policy for app user...';
+      /usr/bin/mc admin policy create myminio app-policy /tmp/app-policy.json;
+      /usr/bin/mc admin policy attach myminio app-policy --user appuser;
+      
+      echo 'MinIO setup complete!';
       "
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_admin_password_123}
-      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-ats-resumes}
+    volumes:
+      - ./minio-setup/app-policy.json:/tmp/app-policy.json
     networks:
       - ats-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: ats_redis
+    command: redis-server --requirepass redis123 --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ats-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
-    build:
-      context: .
+    build: .
     container_name: hr_stream_app
     depends_on:
-      - postgres
-      - minio
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hr_stream}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres_password_123}
-      JWT_SECRET: ${JWT_SECRET:-MySecretKey123!@$%^&*()_+{}|:<>?[]\\,./}
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_admin_password_123}
-      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-ats-resumes}
-      S3_ENDPOINT: http://minio:9000
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hr_stream
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres123
+
+      # MinIO - Use the app user, not root!
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: appuser          # ← Application-specific user
+      MINIO_SECRET_KEY: appuser123       # ← Application-specific password
+      MINIO_BUCKET_NAME: ats-resumes
+      MINIO_SECURE: "false"
+
+      # Redis
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: redis123
+
+      # App
+      SERVER_PORT: 8090
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8090:8090"
     networks:
       - ats-network
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
 
 volumes:
-  pgdata:
-  minio-data:
+  postgres_data:
+  minio_data:
+  redis_data:
 
 networks:
   ats-network:
     driver: bridge
-

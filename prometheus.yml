@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Spring Boot Actuator metrics
+  - job_name: "hr-stream-app"
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["app:8090"]
+
+  # PostgreSQL exporter (requires postgres_exporter service)
+  - job_name: "postgres"
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+
+  # Redis exporter (requires redis_exporter service)
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  # MinIO exports Prometheus metrics on /minio/v2/metrics/cluster (and /node)
+  - job_name: "minio"
+    metrics_path: /minio/v2/metrics/cluster
+    scheme: http
+    static_configs:
+      - targets: ["minio:9000"]
+
+  # Host/system metrics (requires node-exporter service)
+  - job_name: "node"
+    static_configs:
+      - targets: ["node-exporter:9100"]

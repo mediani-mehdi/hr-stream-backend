@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, String> {
@@ -16,6 +16,8 @@ public interface JobRepository extends JpaRepository<Job, String> {
     @Query("UPDATE Job j SET j.deleted = true WHERE j.id = ?1")
     void softdeleteById(String jobId);
 
-    //@Query("SELECT j FROM Job j WHERE j.deleted = false AND j.status IN ?2")
-    //Page<Job> findAll(Pageable pageable, List<JobStatus> statuses);
+    @Query("SELECT j FROM Job j WHERE j.deleted = false")
+    Page<Job> findAllActive(Pageable pageable);
+
+    Optional<Job> findByApplicationToken(String token);
 }

@@ -2,46 +2,124 @@ package com.medev.hrstream.Gemini;
 
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
-import org.springframework.beans.factory.annotation.Value;
+import com.medev.hrstream.config.ApplicationProperties;
+import com.medev.hrstream.job.Job;
+import com.medev.hrstream.job.JobRepository;
+import com.medev.hrstream.job.JobResponseDTO;
+import com.medev.hrstream.job.JobStatus;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class GeminiService {
 
     private final Client client;
     private final String modelName;
+    private final JobRepository jobRepository;
+    private final ApplicationProperties applicationProperties;
 
-    public GeminiService(@Value("${spring.ai.google.genai.api-key}") String apiKey,
-                         @Value("${spring.ai.google.genai.chat.options.model}") String modelName) {
-        // FIX 1: Use the builder to explicitly set the API Key from properties.
-        // 'new Client()' would ignore the apiKey variable and look for an Env Var instead.
-        this.client = Client.builder()
-                .apiKey(apiKey)
-                .build();
+    public GeminiService(Client client, @Qualifier("geminiModelName") String modelName, JobRepository jobRepository, ApplicationProperties applicationProperties) {
+        this.client = client;
         this.modelName = modelName;
+        this.jobRepository = jobRepository;
+        this.applicationProperties = applicationProperties;
     }
 
-    public String generateJobDescription(String jobTitle) {
-        String prompt = String.format(
-                "Act as an Expert HR Recruiter. Write a professional, engaging Job Description for the role of '%s'.\n\n" +
-                        "Structure the response in clean Markdown:\n" +
-                        "## Role Overview\n" +
-                        "## Key Responsibilities (Bullet points)\n" +
-                        "## Required Skills (Bullet points)\n" +
-                        "## Why Join Us?\n\n" +
-                        "Tone: Professional but exciting.",
-                jobTitle
-        );
+    public JobResponseDTO generateJobDescription(Job job) {
+        // Step 1: Save the job first to get an ID (with status = DRAFT)
+        if (job.getStatus() == null) {
+            job.setStatus(JobStatus.DRAFT);
+        }
+        if (job.getCreatedDate() == null) {
+            job.setCreatedDate(LocalDateTime.now());
+        }
+        Job savedJob = jobRepository.save(job);
+
+        // Step 2: Generate the application link and token if not already present
+        if (savedJob.getApplicationToken() == null) {
+            generateApplicationLink(savedJob);
+            savedJob = jobRepository.save(savedJob);
+        }
+
+        // Step 3: Build AI prompt
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("Act as an Expert HR Recruiter. Generate a professional, engaging, and complete job description in Markdown format.\n\n");
+
+        prompt.append("Use the following details:\n");
+        prompt.append("- **Job Title**: ").append(safeGet(savedJob.getTitle())).append("\n");
+        if (savedJob.getLocation() != null && !savedJob.getLocation().isBlank()) {
+            prompt.append("- **Location**: ").append(savedJob.getLocation()).append("\n");
+        }
+        if (savedJob.getExperienceLevel() != null && !savedJob.getExperienceLevel().isBlank()) {
+            prompt.append("- **Experience Level**: ").append(savedJob.getExperienceLevel()).append("\n");
+        }
+        if (savedJob.getEmploymentType() != null && !savedJob.getEmploymentType().isBlank()) {
+            prompt.append("- **Employment Type**: ").append(savedJob.getEmploymentType()).append("\n");
+        }
+        if (savedJob.getCompanyDetails() != null && !savedJob.getCompanyDetails().isBlank()) {
+            prompt.append("- **Company**: ").append(savedJob.getCompanyDetails()).append("\n");
+        }
+        if (savedJob.getSkills() != null && !savedJob.getSkills().isEmpty()) {
+            prompt.append("- **Required Skills**: ").append(String.join(", ", savedJob.getSkills())).append("\n");
+        }
+        if (savedJob.getAdditionalInfo() != null && !savedJob.getAdditionalInfo().isBlank()) {
+            prompt.append("- **Additional Notes**: ").append(savedJob.getAdditionalInfo()).append("\n");
+        }
+
+        prompt.append("\n");
+        prompt.append("Structure the output in clean Markdown with these sections:\n");
+        prompt.append("## Role Overview\n");
+        prompt.append("## Key Responsibilities (use bullet points)\n");
+        prompt.append("## Required Qualifications & Skills (use bullet points)\n");
+        prompt.append("## What We Offer / Why Join Us?\n\n");
+
+        prompt.append("Tone: Professional, inclusive, and exciting. Avoid generic phrases. Be specific and compelling.\n");
+        prompt.append("Do not include application instructions or links — those will be added separately.");
 
         try {
-            // FIX 2: 'models' is a field, not a method (remove parentheses).
-            // FIX 3: Pass 'null' for the configuration argument if you don't have specific configs.
-            GenerateContentResponse response = client.models.generateContent(modelName, prompt, null);
+            // Step 4: Generate description using AI
+            GenerateContentResponse response = client.models.generateContent(modelName, prompt.toString(), null);
+            String description = response.text();
+            savedJob.setDescription(description);
 
-            // FIX 4: Use 'text()' to get the string response.
-            return response.text();
+            // Step 5: Save the job again with description and application link
+            savedJob.setUpdatedDate(LocalDateTime.now());
+            Job finalJob = jobRepository.save(savedJob);
+
+            // Step 6: Return complete job data
+            return JobResponseDTO.builder()
+                    .id(finalJob.getId())
+                    .title(finalJob.getTitle())
+                    .description(finalJob.getDescription())
+                    .applicationLink(finalJob.getApplyLink())
+                    .status(finalJob.getStatus())
+                    .location(finalJob.getLocation())
+                    .experienceLevel(finalJob.getExperienceLevel())
+                    .employmentType(finalJob.getEmploymentType())
+                    .skills(finalJob.getSkills())
+                    .createdAt(finalJob.getCreatedDate())
+                    .build();
+
         } catch (Exception e) {
-            throw new RuntimeException("Error while generating content from Gemini", e);
+            throw new RuntimeException("Failed to generate job description using AI", e);
         }
+    }
+
+    private void generateApplicationLink(Job job) {
+        // Generate unique secure token
+        String token = UUID.randomUUID().toString();
+        job.setApplicationToken(token);
+
+        String baseUrl = applicationProperties.getBaseUrl();
+        String applyLink = String.format("%s/apply/%s", baseUrl, token);
+        job.setApplyLink(applyLink);
+    }
+
+    // Helper to avoid nulls
+    private String safeGet(String value) {
+        return value == null ? "" : value;
     }
 }
