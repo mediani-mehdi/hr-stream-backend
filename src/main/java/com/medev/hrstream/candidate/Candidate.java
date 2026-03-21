@@ -1,14 +1,14 @@
 package com.medev.hrstream.candidate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.medev.hrstream.candidate.profile.CandidateEducation;
+import com.medev.hrstream.candidate.profile.CandidateExperience;
+import com.medev.hrstream.candidate.profile.CandidateLanguage;
+import com.medev.hrstream.candidate.profile.CandidateSkill;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -31,6 +31,13 @@ public class Candidate {
     private String domaineExpertise;
     private String experienceProfessionnelle;
 
+    // Profile fields
+    private String headline;
+    @Column(columnDefinition = "TEXT")
+    private String summary;
+    private String location;
+    private String linkedinUrl;
+
     // Resume stored in MinIO
     @Column(columnDefinition = "TEXT")
     private String resumeObjectKey;
@@ -39,4 +46,28 @@ public class Candidate {
     private String resumeOriginalName;
     private String resumeContentType;
     private Long resumeSizeBytes;
+
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<CandidateEducation> education = new ArrayList<>();
+
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<CandidateExperience> experience = new ArrayList<>();
+
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<CandidateSkill> skills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<CandidateLanguage> languages = new ArrayList<>();
 }
