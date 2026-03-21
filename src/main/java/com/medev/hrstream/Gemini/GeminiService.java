@@ -28,6 +28,15 @@ public class GeminiService {
         this.applicationProperties = applicationProperties;
     }
 
+    public String generateContent(String prompt) {
+        try {
+            GenerateContentResponse response = client.models.generateContent(modelName, prompt, null);
+            return response.text();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate content using AI", e);
+        }
+    }
+
     public JobResponseDTO generateJobDescription(Job job) {
         // Step 1: Save the job first to get an ID (with status = DRAFT)
         if (job.getStatus() == null) {

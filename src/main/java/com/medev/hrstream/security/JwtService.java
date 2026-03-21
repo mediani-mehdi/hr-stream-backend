@@ -68,7 +68,10 @@ public class JwtService {
         byte[] keyBytes;
         try {
             keyBytes = Decoders.BASE64.decode(secret);
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
+            // JJWT wraps Base64 decode errors in its own exception hierarchy,
+            // so we catch RuntimeException to handle all invalid-Base64 inputs
+            // and fall back to using the raw string bytes.
             keyBytes = secret.getBytes();
         }
         return Keys.hmacShaKeyFor(keyBytes);

@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@EnableAsync
 @EnableJpaAuditing
 @SpringBootApplication()
 public class HrStreamApplication {

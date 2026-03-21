@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/welcome", "/auth/login", "/auth/register","/auth/forgot-password","/auth/reset-password").permitAll()
                         .requestMatchers("/candidate/auth/**").permitAll()
                         .requestMatchers("/candidates/apply/**").permitAll()
+                        .requestMatchers("/public/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
