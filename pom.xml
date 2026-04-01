@@ -151,12 +151,6 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
         </dependency>
-        <!-- AWS SDK v2 for S3 Presigner -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3-presigner</artifactId>
-            <version>${aws.sdk.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
