@@ -21,9 +21,11 @@ public class MinioConfig {
     private static final Logger log = LoggerFactory.getLogger(MinioConfig.class);
 
     private final MinioProperties properties;
+    private final S3Client s3Client;
 
     public MinioConfig(MinioProperties properties) {
         this.properties = properties;
+        this.s3Client = s3Client();
     }
 
     /**
@@ -47,15 +49,15 @@ public class MinioConfig {
      * Creates it if it does not exist.
      */
     @PostConstruct
-    public void ensureBucketExists(@Lazy S3Client client) {
+    public void ensureBucketExists() {
         try {
             String bucket = properties.getBucket();
             try {
-                client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
+                s3Client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());
                 log.info("Bucket '{}' already exists.", bucket);
             } catch (NoSuchBucketException e) {
                 log.info("Bucket '{}' does not exist. Creating it...", bucket);
-                client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+                s3Client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
                 log.info("Bucket '{}' created successfully.", bucket);
             }
         } catch (Exception e) {
