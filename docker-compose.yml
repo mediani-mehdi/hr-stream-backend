@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: ats_postgres
     environment:
       POSTGRES_DB: hr_stream
@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/16/main
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - ats-network
     healthcheck:
@@ -114,7 +114,7 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: appuser          # ← Application-specific user
       MINIO_SECRET_KEY: appuser123       # ← Application-specific password
-      MINIO_BUCKET_NAME: ats-resumes
+      MINIO_BUCKET: ats-resumes
       MINIO_SECURE: "false"
 
       # Redis
@@ -124,8 +124,8 @@ services:
 
       # App
       SERVER_PORT: 8090
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_FLYWAY_ENABLED: "true"
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports:
       - "8090:8090"
