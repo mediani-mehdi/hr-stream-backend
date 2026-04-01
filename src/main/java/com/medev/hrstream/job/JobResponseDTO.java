@@ -13,6 +13,7 @@ public class JobResponseDTO {
     private String title;
     private String description;
     private String applicationLink;
+    private String applyUrl;
     private JobStatus status;
     private String location;
     private String experienceLevel;

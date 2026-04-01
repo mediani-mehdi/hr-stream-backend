@@ -9,8 +9,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class JobApplicationService {
 
     private final JobApplicationRepository repository;
@@ -23,7 +25,7 @@ public class JobApplicationService {
         this.candidateRepository = candidateRepository;
     }
 
-    public JobApplication apply(String token, Candidate candidateData) {
+    public JobApplication applyByToken(String token, Candidate candidateData) {
         Job job = jobRepository.findByApplicationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid application token or job not found"));
 
@@ -47,7 +49,24 @@ public class JobApplicationService {
 
         return repository.save(application);
     }
-// ...existing code...
+
+    public JobApplication applyForSlug(String slug, Candidate candidate) {
+        Job job = jobRepository.findByApplicationToken(slug)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        boolean alreadyApplied = repository.existsByJobIdAndCandidateId(job.getId(), candidate.getId());
+        if (alreadyApplied) {
+            throw new IllegalStateException("Application already exists for this job");
+        }
+
+        JobApplication application = JobApplication.builder()
+                .job(job)
+                .candidate(candidate)
+                .status(ApplicationStatus.PENDING)
+                .build();
+        return repository.save(application);
+    }
+
     public JobApplication updateStatus(String id, ApplicationStatus status) {
         JobApplication application = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -72,4 +91,3 @@ public class JobApplicationService {
         repository.deleteById(id);
     }
 }
-

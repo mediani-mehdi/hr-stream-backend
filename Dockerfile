@@ -6,14 +6,11 @@ WORKDIR /app
 # 1. Copy pom.xml first (for dependency caching)
 COPY pom.xml .
 
-# 2. Download dependencies (cached layer)
-RUN mvn dependency:go-offline -B
-
-# 3. Copy source code
+# 2. Copy source code
 COPY src ./src
 
-# 4. Build the application
-RUN mvn clean package -DskipTests
+# 3. Build the application
+RUN mvn -B clean package -DskipTests
 
 # ========== RUNTIME STAGE ==========
 FROM eclipse-temurin:17-jre-jammy

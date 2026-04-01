@@ -85,12 +85,22 @@ public class JobService {
         return jobRepository.findAllActive(pageable).map(this::mapToResponseDTO);
     }
 
+    public JobResponseDTO getPublicJobBySlug(String slug) {
+        Job job = jobRepository.findByApplicationToken(slug)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        if (Boolean.TRUE.equals(job.getDeleted())) {
+            throw new RuntimeException("Job not available");
+        }
+        return mapToResponseDTO(job);
+    }
+
     private JobResponseDTO mapToResponseDTO(Job job) {
         return JobResponseDTO.builder()
                 .id(job.getId())
                 .title(job.getTitle())
                 .description(job.getDescription())
                 .applicationLink(job.getApplyLink())
+                .applyUrl(job.getApplyLink())
                 .status(job.getStatus())
                 .location(job.getLocation())
                 .experienceLevel(job.getExperienceLevel())

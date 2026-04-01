@@ -127,6 +127,7 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       SPRING_FLYWAY_ENABLED: "true"
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GOOGLE_API_KEY: ${GEMINI_API_KEY:-}
     ports:
       - "8090:8090"
     networks:

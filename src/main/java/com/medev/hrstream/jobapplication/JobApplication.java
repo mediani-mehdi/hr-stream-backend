@@ -36,5 +36,9 @@ public class JobApplication {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     private ApplicationStatus status = ApplicationStatus.PENDING;
-}
 
+    private Integer score;
+
+    @Column(columnDefinition = "TEXT")
+    private String scoreReasoning;
+}

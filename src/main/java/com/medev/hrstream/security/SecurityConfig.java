@@ -4,6 +4,7 @@ import com.medev.hrstream.config.JwtAuthenticationFilter;
 import com.medev.hrstream.user.CompositeUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -59,6 +60,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/welcome", "/auth/login", "/auth/register","/auth/forgot-password","/auth/reset-password").permitAll()
                         .requestMatchers("/candidate/auth/**").permitAll()
                         .requestMatchers("/candidates/apply/**").permitAll()
+                        .requestMatchers("/public/jobs/**").permitAll()
+                        .requestMatchers("/candidate/profile/**").hasRole("CANDIDATE")
+                        .requestMatchers(HttpMethod.POST, "/jobs/*/apply").hasRole("CANDIDATE")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

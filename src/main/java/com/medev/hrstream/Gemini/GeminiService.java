@@ -95,6 +95,7 @@ public class GeminiService {
                     .title(finalJob.getTitle())
                     .description(finalJob.getDescription())
                     .applicationLink(finalJob.getApplyLink())
+                    .applyUrl(finalJob.getApplyLink())
                     .status(finalJob.getStatus())
                     .location(finalJob.getLocation())
                     .experienceLevel(finalJob.getExperienceLevel())
@@ -105,6 +106,15 @@ public class GeminiService {
 
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate job description using AI", e);
+        }
+    }
+
+    public String generateJsonResponse(String prompt) {
+        try {
+            GenerateContentResponse response = client.models.generateContent(modelName, prompt, null);
+            return response.text();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate Gemini response", e);
         }
     }
 

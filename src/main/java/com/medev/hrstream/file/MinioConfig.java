@@ -1,6 +1,5 @@
 package com.medev.hrstream.file;
 
-import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
@@ -9,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import software.amazon.awssdk.services.s3.S3Client;
 
 /**
  * MinIO/S3 configuration class.
@@ -46,9 +47,8 @@ public class MinioConfig {
      * Creates it if it does not exist.
      */
     @PostConstruct
-    public void ensureBucketExists() {
+    public void ensureBucketExists(@Lazy S3Client client) {
         try {
-            S3Client client = s3Client();
             String bucket = properties.getBucket();
             try {
                 client.headBucket(HeadBucketRequest.builder().bucket(bucket).build());

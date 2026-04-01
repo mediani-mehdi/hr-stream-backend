@@ -28,7 +28,7 @@ public class CandidateService {
     }
 
     public JobApplication apply(String token, Candidate candidateData) {
-        return jobApplicationService.apply(token, candidateData);
+        return jobApplicationService.applyByToken(token, candidateData);
     }
 
     public CandidateApplyResponse applyWithResume(String token, Candidate candidateData, MultipartFile resume) {
@@ -55,7 +55,7 @@ public class CandidateService {
         candidate = candidateRepository.save(candidate);
 
         // 3) Apply to job (creates JobApplication linking job + candidate)
-        JobApplication application = jobApplicationService.apply(token, candidate);
+        JobApplication application = jobApplicationService.applyByToken(token, candidate);
 
         return CandidateApplyResponse.builder()
                 .candidate(candidate)
