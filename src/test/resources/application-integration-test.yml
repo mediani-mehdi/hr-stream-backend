@@ -1,0 +1,23 @@
+spring:
+  ai:
+    anthropic:
+      api-key: "integration-test-placeholder"
+    openai:
+      api-key: "integration-test-placeholder"
+
+ai:
+  providers:
+    order: [fake]
+    openrouter:
+      enabled: false
+    gemini:
+      enabled: false
+    claude:
+      enabled: false
+    glm:
+      enabled: false
+
+app:
+  scheduling:
+    deadline-check-cron: "-"
+    stuck-resumer-cron: "-"
