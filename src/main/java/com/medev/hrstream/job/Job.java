@@ -28,23 +28,37 @@ public class Job {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String description;
-    private String applyLink;
-    private String applicationToken;
     private String location;
     private String experienceLevel;
-    private String employmentType;
+    @Enumerated(EnumType.STRING)
+    private ContractType contractType;
     @Column(columnDefinition = "TEXT")
     private String companyDetails;
     @Column(columnDefinition = "TEXT")
     private String additionalInfo;
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> skills;
+    private List<String> requiredSkills;
 
+    private LocalDateTime dateLimte;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> niceToHaveSkills;
+
+
+    private String applyLink;
+    private String applicationToken;
 
     private Boolean deleted= false;
 
     @Enumerated(EnumType.STRING)
     private JobStatus status;
+
+    @Column(name = "closed_at")
+    private java.time.LocalDateTime closedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "closed_reason", length = 32)
+    private com.medev.hrstream.job.lifecycle.ClosedReason closedReason;
 
     @CreationTimestamp
     private LocalDateTime createdDate;
