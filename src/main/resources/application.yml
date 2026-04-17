@@ -58,7 +58,7 @@ management:
 
 # App-specific configuration
 jwt:
-  secret: ${JWT_SECRET:change_me_in_prod}
+  secret: ${JWT_SECRET:this_is_a_default_secret_key_which_is_long_enough_for_jwt}
   expiration: ${JWT_EXPIRATION:86400000}
 
 # Cors configuration
@@ -83,3 +83,71 @@ gemini:
   # Very lightweight, client-side pacing (the code should enforce this)
   rate-limit:
     requests-per-minute: ${GEMINI_RPM:60}
+
+# ATS scoring pipeline configuration
+app:
+  scoring:
+    rule-min-score: 40
+    ai-min-score: 60
+    max-applications: 100
+    required-skill-weight: 60
+    nice-skill-weight: 25
+    experience-keyword-weight: 15
+    prompt-char-budget: 20000
+    min-extracted-chars: 50
+    stuck-after-minutes: 15
+  scheduling:
+    deadline-check-cron: "0 */5 * * * *"
+    stuck-resumer-cron: "0 */2 * * * *"
+
+# AI provider gateway (OpenRouter primary, then Gemini, Claude, GLM)
+ai:
+  providers:
+    order: [openrouter, gemini, claude, glm]
+    openrouter:
+      enabled: ${OPENROUTER_ENABLED:false}
+      api-key: ${OPENROUTER_API_KEY:}
+      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+      model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
+      timeout-ms: 30000
+    gemini:
+      enabled: ${AI_GEMINI_ENABLED:true}
+      api-key: ${GEMINI_API_KEY:}
+      base-url: ${GEMINI_BASE_URL:}
+      model: ${GEMINI_AI_MODEL:gemini-2.0-flash}
+      timeout-ms: 30000
+    claude:
+      enabled: ${CLAUDE_ENABLED:false}
+      api-key: ${CLAUDE_API_KEY:}
+      base-url: ${CLAUDE_BASE_URL:https://api.anthropic.com}
+      model: ${CLAUDE_MODEL:claude-3-5-haiku-latest}
+      timeout-ms: 30000
+    glm:
+      enabled: ${GLM_ENABLED:false}
+      api-key: ${GLM_API_KEY:}
+      base-url: ${GLM_BASE_URL:https://open.bigmodel.cn/api/paas/v4}
+      model: ${GLM_MODEL:glm-4-flash}
+      timeout-ms: 30000
+  scoring:
+    max-retries-per-provider: 1
+    backoff-ms: 500
+
+# Resilience4j circuit breakers (one per provider)
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+    instances:
+      ai-openrouter:
+        baseConfig: default
+      ai-gemini:
+        baseConfig: default
+      ai-claude:
+        baseConfig: default
+      ai-glm:
+        baseConfig: default
