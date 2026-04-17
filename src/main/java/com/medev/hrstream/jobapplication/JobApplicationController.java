@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -16,18 +17,18 @@ import java.util.UUID;
 public class JobApplicationController {
 
     private final JobApplicationService service;
+    private final ApplicationSubmissionService submissionService;
     private final CandidateProfileService candidateProfileService;
     private final CandidateIdentityService candidateIdentityService;
-    private final ApplicationScoringService applicationScoringService;
 
     public JobApplicationController(JobApplicationService service,
+                                    ApplicationSubmissionService submissionService,
                                     CandidateProfileService candidateProfileService,
-                                    CandidateIdentityService candidateIdentityService,
-                                    ApplicationScoringService applicationScoringService) {
+                                    CandidateIdentityService candidateIdentityService) {
         this.service = service;
+        this.submissionService = submissionService;
         this.candidateProfileService = candidateProfileService;
         this.candidateIdentityService = candidateIdentityService;
-        this.applicationScoringService = applicationScoringService;
     }
 
     @Operation(summary = "Admin - list applications")
@@ -63,18 +64,19 @@ public class JobApplicationController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Candidate applies to a job by slug")
-    @PostMapping("/jobs/{slug}/apply")
+    @Operation(summary = "Candidate applies to a job by slug with a CV upload")
+    @PostMapping(value = "/jobs/{slug}/apply", consumes = {"multipart/form-data"})
     @PreAuthorize("hasRole('CANDIDATE')")
-    public ResponseEntity<JobApplication> apply(@PathVariable String slug) {
+    public ResponseEntity<JobApplication> apply(
+            @PathVariable String slug,
+            @RequestPart("cv") MultipartFile cv) {
         UUID candidateId = candidateIdentityService.requireCurrentCandidateId();
         ProfileCompletenessResponse completeness = candidateProfileService.getCompleteness(candidateId);
         if (!completeness.isReadyToApply()) {
             throw new IllegalArgumentException("Please complete your profile (experience and skills) before applying");
         }
         var candidate = candidateIdentityService.requireCurrentCandidate();
-        JobApplication application = service.applyForSlug(slug, candidate);
-        applicationScoringService.scoreApplicationAsync(UUID.fromString(application.getId()));
+        JobApplication application = submissionService.submit(slug, candidate, cv);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(application);
     }
 }
