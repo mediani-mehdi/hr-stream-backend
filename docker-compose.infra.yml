@@ -3,12 +3,12 @@ services:
     image: postgres:17-alpine
     container_name: hr_stream_postgres_local
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-hr_stream}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123654}
+      POSTGRES_DB: ${HR_POSTGRES_DB:-hr_stream}
+      POSTGRES_USER: ${HR_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${HR_POSTGRES_PASSWORD:-123654}
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${HR_POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data_local:/var/lib/postgresql/data
     healthcheck:
@@ -25,12 +25,12 @@ services:
     image: minio/minio:latest
     container_name: hr_stream_minio_local
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-admin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-admin123}
+      MINIO_ROOT_USER: ${HR_MINIO_ROOT_USER:-admin}
+      MINIO_ROOT_PASSWORD: ${HR_MINIO_ROOT_PASSWORD:-admin123}
     command: server /data --console-address ":9001"
     ports:
-      - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "${HR_MINIO_API_PORT:-9000}:9000"
+      - "${HR_MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio_data_local:/data
     healthcheck:
@@ -48,13 +48,13 @@ services:
     container_name: hr_stream_redis_local
     command: sh -c "redis-server --requirepass $$REDIS_PASSWORD --appendonly yes"
     environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
+      REDIS_PASSWORD: ${HR_REDIS_PASSWORD:-redis123}
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${HR_REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data_local:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis123}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${HR_REDIS_PASSWORD:-redis123}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10

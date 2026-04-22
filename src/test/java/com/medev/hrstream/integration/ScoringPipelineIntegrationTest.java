@@ -50,7 +50,7 @@ class ScoringPipelineIntegrationTest extends BaseIntegrationTest {
         Awaitility.await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
             JobApplication reloaded = applications.findById(created.getId()).orElseThrow();
             assertThat(reloaded.getPipelineStatus()).isEqualTo(PipelineStatus.DONE);
-            assertThat(reloaded.getStatus()).isEqualTo(ApplicationStatus.PENDING);
+            assertThat(reloaded.getStatus()).isEqualTo(ApplicationStatus.SUBMITTED);
             assertThat(reloaded.getAiScore()).isEqualTo(85);
             assertThat(reloaded.getAiProvider()).isEqualTo("fake");
             assertThat(reloaded.getProcessingErrorCode()).isNull();

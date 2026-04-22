@@ -1,10 +1,10 @@
 package com.medev.hrstream.jobapplication;
 
 public enum ApplicationStatus {
-    PENDING,
-    REVIEWING,
+    SUBMITTED,
+    UNDER_REVIEW,
     SHORTLISTED,
-    REJECTED,
-    ACCEPTED
+    HIRED,
+    REJECTED
 }
 

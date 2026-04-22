@@ -84,7 +84,7 @@ public class CandidateService {
         ResumeStorageService.StoredObject stored = resumeStorageService.uploadCandidateCv(candidateId, file);
 
         candidate.setResumeObjectKey(stored.objectKey());
-        candidate.setResumeUrl(null); // Don't cache presigned URL — always generate fresh
+        candidate.setResumeUrl(stored.url());
         candidate.setResumeOriginalName(stored.originalName());
         candidate.setResumeContentType(stored.contentType());
         candidate.setResumeSizeBytes(stored.sizeBytes());
@@ -157,6 +157,11 @@ public class CandidateService {
     public Candidate findById(String id) {
         return candidateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Candidate not found with id: " + id));
+    }
+
+    public Candidate findByEmail(String email) {
+        return candidateRepository.findByEmail(email)
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Candidate not found with email: " + email));
     }
 
     public Candidate update(String id, Candidate updatedCandidate) {

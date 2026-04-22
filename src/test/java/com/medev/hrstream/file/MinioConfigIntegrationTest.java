@@ -4,8 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,13 +29,14 @@ class MinioConfigIntegrationTest {
     @Autowired
     private ApplicationRunner ensureBucketExistsRunner;
 
-    @MockBean
+    @MockitoBean
     private S3Client s3Client;
 
     @Test
     void contextLoadsAndRunsBucketCheckOnStartup() {
         assertThat(ensureBucketExistsRunner).isNotNull();
-        verify(s3Client, atLeastOnce()).headBucket(any());
+        verify(s3Client, atLeastOnce()).headBucket(any(HeadBucketRequest.class));
     }
 }
+
 

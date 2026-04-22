@@ -18,6 +18,9 @@ ai:
       enabled: false
 
 app:
+  seed:
+    admin:
+      enabled: false
   scheduling:
     deadline-check-cron: "-"
     stuck-resumer-cron: "-"

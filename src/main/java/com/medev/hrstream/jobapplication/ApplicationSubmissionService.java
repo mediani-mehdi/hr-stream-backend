@@ -69,7 +69,7 @@ public class ApplicationSubmissionService {
         JobApplication app = JobApplication.builder()
                 .job(job)
                 .candidate(candidate)
-                .status(ApplicationStatus.PENDING)
+                .status(ApplicationStatus.SUBMITTED)
                 .pipelineStatus(PipelineStatus.QUEUED)
                 .cvBlobKey(stored.objectKey())
                 .pipelineAttemptCount(0)

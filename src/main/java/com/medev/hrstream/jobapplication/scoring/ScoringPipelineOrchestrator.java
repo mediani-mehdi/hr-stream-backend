@@ -188,7 +188,7 @@ public class ScoringPipelineOrchestrator {
         app.setAiScore(aiScore);
         app.setAiProvider(provider);
         app.setAiReasoning(reasoning);
-        app.setStatus(ApplicationStatus.PENDING);
+        app.setStatus(ApplicationStatus.SUBMITTED);
         app.setPipelineStatus(PipelineStatus.DONE);
         app.setProcessedAt(LocalDateTime.now());
         applications.save(app);

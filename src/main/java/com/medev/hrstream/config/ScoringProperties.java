@@ -10,7 +10,7 @@ public class ScoringProperties {
     /** Minimum rule score (0-100) a CV must reach to proceed to AI scoring. */
     private int ruleMinScore = 40;
 
-    /** Minimum AI score (0-100) to keep status = PENDING; lower auto-rejects. */
+    /** Minimum AI score (0-100) to keep status = SUBMITTED; lower auto-rejects. */
     private int aiMinScore = 60;
 
     /** Fixed cap on non-rejected applications per job. */

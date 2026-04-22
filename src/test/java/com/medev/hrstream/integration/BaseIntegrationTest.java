@@ -6,26 +6,20 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Duration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
 public abstract class BaseIntegrationTest {
 
-    @Container
     protected static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17-alpine")
             .withDatabaseName("hr_stream_test")
             .withUsername("testuser")
             .withPassword("testpass");
 
-    @Container
     protected static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
             .withExposedPorts(6379);
 
-    @Container
     protected static final GenericContainer<?> minio = new GenericContainer<>("minio/minio:latest")
             .withExposedPorts(9000)
             .withEnv("MINIO_ROOT_USER", "admin")
@@ -33,9 +27,16 @@ public abstract class BaseIntegrationTest {
             .withCommand("server /data")
             .withStartupTimeout(Duration.ofSeconds(30));
 
+    // Static block starts containers once for the entire JVM run.
+    // Testcontainers' Ryuk sidecar handles cleanup on JVM exit.
+    static {
+        postgres.start();
+        redis.start();
+        minio.start();
+    }
+
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        // PostgreSQL
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
@@ -43,11 +44,9 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.flyway.user", postgres::getUsername);
         registry.add("spring.flyway.password", postgres::getPassword);
 
-        // Redis
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
 
-        // MinIO
         registry.add("minio.endpoint", () -> "http://" + minio.getHost() + ":" + minio.getMappedPort(9000));
         registry.add("minio.access-key", () -> "admin");
         registry.add("minio.secret-key", () -> "admin123");
@@ -57,8 +56,27 @@ public abstract class BaseIntegrationTest {
 
     @BeforeAll
     static void setUp() {
-        postgres.start();
-        redis.start();
-        minio.start();
+        createBucket();
+    }
+
+    private static void createBucket() {
+        try {
+            var client = software.amazon.awssdk.services.s3.S3Client.builder()
+                    .endpointOverride(java.net.URI.create(
+                            "http://" + minio.getHost() + ":" + minio.getMappedPort(9000)))
+                    .region(software.amazon.awssdk.regions.Region.US_EAST_1)
+                    .credentialsProvider(software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
+                            software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create("admin", "admin123")))
+                    .forcePathStyle(true)
+                    .build();
+            try {
+                client.createBucket(b -> b.bucket("ats-resumes-test"));
+            } catch (software.amazon.awssdk.services.s3.model.BucketAlreadyOwnedByYouException |
+                     software.amazon.awssdk.services.s3.model.BucketAlreadyExistsException ignored) {
+            }
+            client.close();
+        } catch (Exception e) {
+            throw new IllegalStateException("could not create MinIO test bucket", e);
+        }
     }
 }

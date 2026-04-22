@@ -36,8 +36,7 @@ public class SecurityConfig {
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CompositeUserDetailsService compositeUserDetailsService,
             RestAuthenticationEntryPoint restAuthenticationEntryPoint,
-            RestAccessDeniedHandler restAccessDeniedHandler
-    ) {
+            RestAccessDeniedHandler restAccessDeniedHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.compositeUserDetailsService = compositeUserDetailsService;
         this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
@@ -52,19 +51,21 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(restAuthenticationEntryPoint)
-                        .accessDeniedHandler(restAccessDeniedHandler)
-                )
+                        .accessDeniedHandler(restAccessDeniedHandler))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/auth/welcome", "/auth/login", "/auth/register","/auth/forgot-password","/auth/reset-password").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**").permitAll()
+                        .requestMatchers("/auth/welcome", "/auth/login", "/auth/register", "/auth/forgot-password",
+                                "/auth/reset-password")
+                        .permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/candidate/auth/**").permitAll()
                         .requestMatchers("/candidates/apply/**").permitAll()
                         .requestMatchers("/public/jobs/**").permitAll()
                         .requestMatchers("/candidate/profile/**").hasRole("CANDIDATE")
+                        .requestMatchers("/dashboard/**").hasRole("HR")
                         .requestMatchers(HttpMethod.POST, "/jobs/*/apply").hasRole("CANDIDATE")
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

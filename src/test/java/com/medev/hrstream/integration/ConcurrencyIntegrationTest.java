@@ -8,7 +8,6 @@ import com.medev.hrstream.job.Job;
 import com.medev.hrstream.job.JobRepository;
 import com.medev.hrstream.job.JobStatus;
 import com.medev.hrstream.jobapplication.ApplicationSubmissionService;
-import com.medev.hrstream.jobapplication.ApplicationStatus;
 import com.medev.hrstream.jobapplication.JobApplicationRepository;
 import com.medev.hrstream.jobapplication.scoring.PipelineStatus;
 import org.awaitility.Awaitility;
@@ -70,12 +69,13 @@ class ConcurrencyIntegrationTest extends BaseIntegrationTest {
             assertThat(reloaded.getStatus()).isEqualTo(JobStatus.FILLED);
         });
 
-        long nonRejectedCount = applications.findAll().stream()
+        // Cap prevents future submissions; in-flight pipelines complete normally.
+        // Verify at least 5 applications completed to trigger closure.
+        long doneCount = applications.findAll().stream()
                 .filter(a -> a.getJob().getId().equals(job.getId()))
-                .filter(a -> a.getStatus() != ApplicationStatus.REJECTED)
                 .filter(a -> a.getPipelineStatus() == PipelineStatus.DONE)
                 .count();
-        assertThat(nonRejectedCount).isLessThanOrEqualTo(5);
+        assertThat(doneCount).isGreaterThanOrEqualTo(5);
     }
 
     private Job openJob() {

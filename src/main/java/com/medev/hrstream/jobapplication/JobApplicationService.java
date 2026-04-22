@@ -44,7 +44,7 @@ public class JobApplicationService {
         JobApplication application = JobApplication.builder()
                 .job(job)
                 .candidate(candidate)
-                .status(ApplicationStatus.PENDING)
+                .status(ApplicationStatus.SUBMITTED)
                 .build();
 
         return repository.save(application);
@@ -62,7 +62,7 @@ public class JobApplicationService {
         JobApplication application = JobApplication.builder()
                 .job(job)
                 .candidate(candidate)
-                .status(ApplicationStatus.PENDING)
+                .status(ApplicationStatus.SUBMITTED)
                 .build();
         return repository.save(application);
     }

@@ -52,7 +52,7 @@ public class AuthService {
                 .roles(user.getRole().name())
                 .build();
 
-        var jwtToken = jwtService.generateToken(springUser);
+        var jwtToken = jwtService.generateTokenWithClaims(springUser, user.getFirstname(), user.getLastname());
         return AuthResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -65,7 +65,16 @@ public class AuthService {
             );
 
             UserDetails principal = (UserDetails) authentication.getPrincipal();
-            String token = jwtService.generateToken(principal);
+            
+            // fetch user from db to get firstname/lastname
+            String token;
+            var optionalUser = userRepository.findByEmail(principal.getUsername());
+            if (optionalUser.isPresent()) {
+                token = jwtService.generateTokenWithClaims(principal, optionalUser.get().getFirstname(), optionalUser.get().getLastname());
+            } else {
+                // Check candidate
+                token = jwtService.generateToken(principal); // Can add Candidate name lookup later if needed
+            }
 
             return AuthResponse.builder()
                     .token(token)

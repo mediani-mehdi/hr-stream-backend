@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.DefaultApplicationArguments;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 
@@ -31,10 +32,11 @@ class MinioConfigUnitTest {
         MinioConfig minioConfig = new MinioConfig(properties);
         ApplicationRunner runner = minioConfig.ensureBucketExistsRunner(s3Client);
 
-        runner.run(new DefaultApplicationArguments(new String[0]));
+        runner.run(new DefaultApplicationArguments());
 
         verify(s3Client, times(1)).headBucket(any(HeadBucketRequest.class));
-        verify(s3Client, times(1)).createBucket(any());
+        verify(s3Client, times(1)).createBucket(any(CreateBucketRequest.class));
     }
 }
+
 

@@ -2,6 +2,17 @@ spring:
   application:
     name: hr-stream
 
+  autoconfigure:
+    exclude:
+      # Spring AI starters auto-configure all model types; the app wires its own beans in AiProviderConfig
+      - org.springframework.ai.model.anthropic.autoconfigure.AnthropicChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiImageAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioSpeechAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiAudioTranscriptionAutoConfiguration
+      - org.springframework.ai.model.openai.autoconfigure.OpenAiModerationAutoConfiguration
+
   servlet:
     multipart:
       max-file-size: 10MB
@@ -20,7 +31,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     open-in-view: false
     properties:
       hibernate:
@@ -56,36 +67,14 @@ management:
     tags:
       application: ${spring.application.name}
 
-# App-specific configuration
-jwt:
-  secret: ${JWT_SECRET:this_is_a_default_secret_key_which_is_long_enough_for_jwt}
-  expiration: ${JWT_EXPIRATION:86400000}
-
-# Cors configuration
-cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
-  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,PATCH,DELETE,OPTIONS}
-  allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type,X-Auth-Token}
-  exposed-headers: ${CORS_EXPOSED_HEADERS:X-Auth-Token}
-
-# MinIO configuration
-minio:
-  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-  access-key: ${MINIO_ACCESS_KEY:admin}
-  secret-key: ${MINIO_SECRET_KEY:admin123}
-  bucket: ${MINIO_BUCKET:ats-resumes}
-  region: ${MINIO_REGION:us-east-1}
-
-# Gemini API configuration
-gemini:
-  api-key: ${GEMINI_API_KEY:}
-  model: ${GEMINI_MODEL:gemini-2.0-flash}
-  # Very lightweight, client-side pacing (the code should enforce this)
-  rate-limit:
-    requests-per-minute: ${GEMINI_RPM:60}
-
-# ATS scoring pipeline configuration
+# Seed admin user (created on first boot if no user with that email exists)
 app:
+  seed:
+    admin:
+      enabled: ${SEED_ADMIN_ENABLED:true}
+      email: ${SEED_ADMIN_EMAIL:admin@hrstream.local}
+      password: ${SEED_ADMIN_PASSWORD:Admin@1234}
+  # ATS scoring pipeline configuration
   scoring:
     rule-min-score: 40
     ai-min-score: 60
@@ -151,3 +140,13 @@ resilience4j:
         baseConfig: default
       ai-glm:
         baseConfig: default
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  accessKey: ${MINIO_ACCESS_KEY:admin}
+  secretKey: ${MINIO_SECRET_KEY:admin123}
+  bucket: ${MINIO_BUCKET:hr-stream}
+  region: ${MINIO_REGION:us-east-1}
+
+jwt:
+  secret: ${JWT_SECRET:default-secret-for-local-dev-change-for-prod}

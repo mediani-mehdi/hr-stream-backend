@@ -11,6 +11,7 @@ import java.util.List;
 public class JobResponseDTO {
     private String id;
     private String title;
+    private String slug;
     private String description;
     private String applicationLink;
     private String applyUrl;

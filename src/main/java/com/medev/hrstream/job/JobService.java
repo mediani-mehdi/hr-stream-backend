@@ -35,7 +35,7 @@ public class JobService {
         Job job = jobRepository.findById(jobId).orElseThrow(() -> new RuntimeException("Job not found"));
         job.setStatus(JobStatus.valueOf(status));
         jobRepository.save(job);
-        return "Job status is set to "+status+" successfully";
+        return "Job status is set to " + status + " successfully";
     }
 
     public String updateStatus(String jobId, JobStatus status) {
@@ -52,10 +52,12 @@ public class JobService {
         existingJob.setDescription(updatedJob.getDescription());
         existingJob.setLocation(updatedJob.getLocation());
         existingJob.setExperienceLevel(updatedJob.getExperienceLevel());
-        existingJob.setEmploymentType(updatedJob.getEmploymentType());
+        existingJob.setContractType(updatedJob.getContractType());
         existingJob.setCompanyDetails(updatedJob.getCompanyDetails());
         existingJob.setAdditionalInfo(updatedJob.getAdditionalInfo());
-        existingJob.setSkills(updatedJob.getSkills());
+        existingJob.setRequiredSkills(updatedJob.getRequiredSkills());
+        existingJob.setNiceToHaveSkills(updatedJob.getNiceToHaveSkills());
+        existingJob.setDateLimte(updatedJob.getDateLimte());
         existingJob.setStatus(updatedJob.getStatus());
 
         return jobRepository.save(existingJob);
@@ -85,6 +87,10 @@ public class JobService {
         return jobRepository.findAllActive(pageable).map(this::mapToResponseDTO);
     }
 
+    public Page<JobResponseDTO> findAllPublicJobs(Pageable pageable) {
+        return jobRepository.findAllOpenJobs(pageable).map(this::mapToResponseDTO);
+    }
+
     public JobResponseDTO getPublicJobBySlug(String slug) {
         Job job = jobRepository.findByApplicationToken(slug)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
@@ -98,14 +104,15 @@ public class JobService {
         return JobResponseDTO.builder()
                 .id(job.getId())
                 .title(job.getTitle())
+                .slug(job.getApplicationToken())
                 .description(job.getDescription())
                 .applicationLink(job.getApplyLink())
                 .applyUrl(job.getApplyLink())
                 .status(job.getStatus())
                 .location(job.getLocation())
                 .experienceLevel(job.getExperienceLevel())
-                .employmentType(job.getEmploymentType())
-                .skills(job.getSkills())
+                .employmentType(job.getContractType() != null ? job.getContractType().name() : null)
+                .skills(job.getRequiredSkills())
                 .createdAt(job.getCreatedDate())
                 .build();
     }

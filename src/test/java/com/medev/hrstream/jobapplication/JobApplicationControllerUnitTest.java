@@ -74,7 +74,7 @@ class JobApplicationControllerUnitTest {
 
             java.lang.reflect.Field statusField = JobApplication.class.getDeclaredField("status");
             statusField.setAccessible(true);
-            statusField.set(mockApplication, ApplicationStatus.PENDING);
+            statusField.set(mockApplication, ApplicationStatus.SUBMITTED);
 
             java.lang.reflect.Field candField = JobApplication.class.getDeclaredField("candidate");
             candField.setAccessible(true);
@@ -124,7 +124,7 @@ class JobApplicationControllerUnitTest {
         try {
             java.lang.reflect.Field statusField = JobApplication.class.getDeclaredField("status");
             statusField.setAccessible(true);
-            statusField.set(mockApplication, ApplicationStatus.ACCEPTED);
+            statusField.set(mockApplication, ApplicationStatus.HIRED);
         } catch (Exception e) {}
         when(service.updateStatus(eq(getAppId()), any(ApplicationStatus.class))).thenReturn(mockApplication);
 

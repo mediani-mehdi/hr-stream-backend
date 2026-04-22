@@ -56,14 +56,17 @@ public class GeminiService {
         if (savedJob.getExperienceLevel() != null && !savedJob.getExperienceLevel().isBlank()) {
             prompt.append("- **Experience Level**: ").append(savedJob.getExperienceLevel()).append("\n");
         }
-        if (savedJob.getEmploymentType() != null && !savedJob.getEmploymentType().isBlank()) {
-            prompt.append("- **Employment Type**: ").append(savedJob.getEmploymentType()).append("\n");
+        if (savedJob.getContractType() != null) {
+            prompt.append("- **Contract Type**: ").append(savedJob.getContractType().name()).append("\n");
         }
         if (savedJob.getCompanyDetails() != null && !savedJob.getCompanyDetails().isBlank()) {
             prompt.append("- **Company**: ").append(savedJob.getCompanyDetails()).append("\n");
         }
-        if (savedJob.getSkills() != null && !savedJob.getSkills().isEmpty()) {
-            prompt.append("- **Required Skills**: ").append(String.join(", ", savedJob.getSkills())).append("\n");
+        if (savedJob.getRequiredSkills() != null && !savedJob.getRequiredSkills().isEmpty()) {
+            prompt.append("- **Required Skills**: ").append(String.join(", ", savedJob.getRequiredSkills())).append("\n");
+        }
+        if (savedJob.getNiceToHaveSkills() != null && !savedJob.getNiceToHaveSkills().isEmpty()) {
+            prompt.append("- **Nice to Have Skills**: ").append(String.join(", ", savedJob.getNiceToHaveSkills())).append("\n");
         }
         if (savedJob.getAdditionalInfo() != null && !savedJob.getAdditionalInfo().isBlank()) {
             prompt.append("- **Additional Notes**: ").append(savedJob.getAdditionalInfo()).append("\n");
@@ -77,7 +80,7 @@ public class GeminiService {
         prompt.append("## What We Offer / Why Join Us?\n\n");
 
         prompt.append("Tone: Professional, inclusive, and exciting. Avoid generic phrases. Be specific and compelling.\n");
-        prompt.append("Do not include application instructions or links — those will be added separately.");
+        prompt.append("Do not include application instructions or links - those will be added separately.");
 
         try {
             // Step 4: Generate description using AI
@@ -99,8 +102,8 @@ public class GeminiService {
                     .status(finalJob.getStatus())
                     .location(finalJob.getLocation())
                     .experienceLevel(finalJob.getExperienceLevel())
-                    .employmentType(finalJob.getEmploymentType())
-                    .skills(finalJob.getSkills())
+                    .employmentType(finalJob.getContractType() != null ? finalJob.getContractType().name() : null)
+                    .skills(finalJob.getRequiredSkills())
                     .createdAt(finalJob.getCreatedDate())
                     .build();
 

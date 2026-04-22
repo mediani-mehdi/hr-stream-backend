@@ -1,0 +1,130 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.medev:hr-stream >-------------------------
+[INFO] Building hr-stream 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.9:run (default-cli) > test-compile @ hr-stream >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ hr-stream ---
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] Copying 6 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ hr-stream ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ hr-stream ---
+[INFO] Copying 6 resources from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ hr-stream ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.9:run (default-cli) < test-compile @ hr-stream <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.9:run (default-cli) @ hr-stream ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.9)
+
+2026-04-19T22:47:34.361+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.medev.hrstream.HrStreamApplication   : Starting HrStreamApplication using Java 21.0.10 with PID 36604 (D:\Hr-Stream-Project\hr-stream\target\classes started by mehdi in D:\Hr-Stream-Project\hr-stream)
+2026-04-19T22:47:34.364+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.medev.hrstream.HrStreamApplication   : The following 1 profile is active: "dev"
+2026-04-19T22:47:34.800+01:00  INFO 36604 --- [hr-stream] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-19T22:47:34.800+01:00  INFO 36604 --- [hr-stream] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-19T22:47:36.751+01:00  INFO 36604 --- [hr-stream] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-19T22:47:37.037+01:00  INFO 36604 --- [hr-stream] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 271 ms. Found 4 JPA repository interfaces.
+2026-04-19T22:47:39.202+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8090 (http)
+2026-04-19T22:47:39.233+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-19T22:47:39.233+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.50]
+2026-04-19T22:47:39.377+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-19T22:47:39.379+01:00  INFO 36604 --- [hr-stream] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 4577 ms
+2026-04-19T22:47:39.982+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HrStreamHikari - Starting...
+2026-04-19T22:47:40.240+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HrStreamHikari - Added connection org.postgresql.jdbc.PgConnection@69d5d941
+2026-04-19T22:47:40.243+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HrStreamHikari - Start completed.
+2026-04-19T22:47:40.291+01:00  INFO 36604 --- [hr-stream] [  restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/hr_stream (PostgreSQL 18.3)
+2026-04-19T22:47:40.305+01:00  WARN 36604 --- [hr-stream] [  restartedMain] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.3 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 17.
+2026-04-19T22:47:40.377+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 5 migrations (execution time 00:00.050s)
+2026-04-19T22:47:40.442+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 8
+2026-04-19T22:47:40.448+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-04-19T22:47:40.727+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-19T22:47:40.857+01:00  INFO 36604 --- [hr-stream] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.39.Final
+2026-04-19T22:47:40.927+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-19T22:47:41.441+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-19T22:47:41.606+01:00  INFO 36604 --- [hr-stream] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HrStreamHikari)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-19T22:47:43.894+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-19T22:47:43.970+01:00  INFO 36604 --- [hr-stream] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19T22:47:45.543+01:00  INFO 36604 --- [hr-stream] [  restartedMain] eAuthenticationProviderManagerConfigurer : Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2026-04-19T22:47:45.545+01:00  WARN 36604 --- [hr-stream] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used by Spring Security for automatically configuring username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider. If the current configuration is intentional, to turn off this warning, increase the logging level of 'org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer' to ERROR
+2026-04-19T22:47:45.686+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-19T22:47:48.658+01:00  WARN 36604 --- [hr-stream] [  restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'geminiConfig': Injection of autowired dependencies failed
+2026-04-19T22:47:48.663+01:00  INFO 36604 --- [hr-stream] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-19T22:47:48.671+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HrStreamHikari - Shutdown initiated...
+2026-04-19T22:47:48.675+01:00  INFO 36604 --- [hr-stream] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HrStreamHikari - Shutdown completed.
+2026-04-19T22:47:48.680+01:00  INFO 36604 --- [hr-stream] [  restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-04-19T22:47:48.701+01:00  INFO 36604 --- [hr-stream] [  restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-04-19T22:47:48.741+01:00 ERROR 36604 --- [hr-stream] [  restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'geminiConfig': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:515) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1459) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:606) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1228) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1194) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1130) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:990) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.9.jar:3.5.9]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.9.jar:3.5.9]
+	at com.medev.hrstream.HrStreamApplication.main(HrStreamApplication.java:26) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.5.9.jar:3.5.9]
+Caused by: org.springframework.util.PlaceholderResolutionException: Could not resolve placeholder 'gemini.api-key' in value "${gemini.api-key}"
+	at org.springframework.util.PlaceholderResolutionException.withValue(PlaceholderResolutionException.java:81) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.util.PlaceholderParser$ParsedValue.resolve(PlaceholderParser.java:298) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.util.PlaceholderParser.replacePlaceholders(PlaceholderParser.java:131) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:114) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:293) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:264) ~[spring-core-6.2.15.jar:6.2.15]
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:186) ~[spring-context-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:970) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1675) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:784) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:767) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:146) ~[spring-beans-6.2.15.jar:6.2.15]
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:509) ~[spring-beans-6.2.15.jar:6.2.15]
+	... 22 common frames omitted
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  22.527 s
+[INFO] Finished at: 2026-04-19T22:47:48+01:00
+[INFO] ------------------------------------------------------------------------

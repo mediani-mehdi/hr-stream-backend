@@ -41,9 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             String jwt = authHeader.substring(7);
+            System.out.println("DEBUG: Found JWT in header: " + jwt);
 
             if (jwtService.validateToken(jwt)) {
                 String email = jwtService.getEmailFromToken(jwt);
+                System.out.println("DEBUG: JWT is valid for email: " + email);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                 UsernamePasswordAuthenticationToken authToken =
@@ -51,6 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 userDetails, null, userDetails.getAuthorities());
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                System.out.println("DEBUG: Authentication set in context for: " + email);
+            } else {
+                System.out.println("DEBUG: JWT validation failed");
             }
         }
 

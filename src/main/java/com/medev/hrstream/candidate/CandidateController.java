@@ -38,6 +38,46 @@ public class CandidateController {
         return ResponseEntity.ok(candidateService.applyWithResume(token, candidate, resume));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<Candidate> getMe(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(candidateService.findByEmail(principal.getName()));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<Candidate> updateMe(java.security.Principal principal, @RequestBody Candidate candidate) {
+        if (principal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        Candidate me = candidateService.findByEmail(principal.getName());
+        return ResponseEntity.ok(candidateService.update(me.getId(), candidate));
+    }
+
+    @PostMapping(value = "/me/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CvResponse> uploadMyCv(
+            java.security.Principal principal,
+            @RequestPart("file") MultipartFile file
+    ) {
+        if (principal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        Candidate me = candidateService.findByEmail(principal.getName());
+        CvResponse response = candidateService.uploadCv(me.getId(), file);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/cv")
+    public ResponseEntity<CvResponse> getMyCv(java.security.Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
+        }
+        Candidate me = candidateService.findByEmail(principal.getName());
+        CvResponse response = candidateService.getCv(me.getId());
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<Page<Candidate>> findAll(
             @RequestParam(defaultValue = "0") int page,

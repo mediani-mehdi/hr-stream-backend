@@ -1,5 +1,6 @@
 package com.medev.hrstream.jobapplication;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.medev.hrstream.candidate.Candidate;
 import com.medev.hrstream.job.Job;
 import com.medev.hrstream.jobapplication.scoring.PipelineStatus;
@@ -33,6 +34,7 @@ public class JobApplication {
 
     @ManyToOne
     @JoinColumn(name = "candidate_id")
+    @JsonIgnoreProperties({"education", "experience", "skills", "languages", "password", "resumeObjectKey", "resumeUrl"})
     private Candidate candidate;
 
     @CreationTimestamp
@@ -40,7 +42,7 @@ public class JobApplication {
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private ApplicationStatus status = ApplicationStatus.PENDING;
+    private ApplicationStatus status = ApplicationStatus.SUBMITTED;
 
     // --- Pipeline state ---
     @Enumerated(EnumType.STRING)

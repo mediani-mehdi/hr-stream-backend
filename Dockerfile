@@ -3,14 +3,19 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# 1. Copy pom.xml first (for dependency caching)
+# 1. Copy Maven wrapper and pom.xml
+COPY .mvn .mvn
+COPY mvnw .
 COPY pom.xml .
+
+# Make mvnw executable
+RUN chmod +x mvnw
 
 # 2. Copy source code
 COPY src ./src
 
 # 3. Build the application
-RUN mvn -B clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
 # ========== RUNTIME STAGE ==========
 FROM eclipse-temurin:17-jre-jammy
