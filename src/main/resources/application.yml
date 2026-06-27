@@ -45,10 +45,6 @@ spring:
   cache:
     type: redis
 
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-
 server:
   port: 8090
   forward-headers-strategy: framework

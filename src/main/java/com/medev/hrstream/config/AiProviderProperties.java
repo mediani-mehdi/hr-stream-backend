@@ -15,12 +15,15 @@ public class AiProviderProperties {
     @Data
     public static class Providers {
         /** Ordered list of provider names, tried in order. */
-        private List<String> order = List.of("openrouter", "gemini", "claude", "glm");
+        private List<String> order = List.of("openrouter", "gemini", "claude", "glm", "ollama", "lmstudio", "openai-compatible");
 
         private ProviderConfig openrouter = new ProviderConfig();
         private ProviderConfig gemini = new ProviderConfig();
         private ProviderConfig claude = new ProviderConfig();
         private ProviderConfig glm = new ProviderConfig();
+        private ProviderConfig lmStudio = new ProviderConfig();
+        private ProviderConfig ollama = new ProviderConfig();
+        private ProviderConfig openaiCompatible = new ProviderConfig();
     }
 
     @Data

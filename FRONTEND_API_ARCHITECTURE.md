@@ -219,7 +219,7 @@ If needed, override with env vars:
 
 - API contracts are currently mixed (DTO + entity + string responses); frontend should rely on explicit per-endpoint typing.
 - Some route naming is not fully REST-consistent (for example `/jobs/save`, `/jobs/{jobId}/{status}`), so build client methods around actual current paths.
-- If schema changes happen (entity updates), ensure Flyway migration is applied before local testing to avoid startup failures.
+- If schema changes happen (entity updates), restart the backend and verify Hibernate applies the expected schema update before local testing.
 
 ---
 

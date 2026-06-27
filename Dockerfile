@@ -4,15 +4,16 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # 1. Copy Maven wrapper and pom.xml
-COPY .mvn .mvn
-COPY mvnw .
-COPY pom.xml .
+#    Paths are relative to the build context (project root)
+COPY hr-stream/.mvn .mvn
+COPY hr-stream/mvnw .
+COPY hr-stream/pom.xml .
 
 # Make mvnw executable
 RUN chmod +x mvnw
 
 # 2. Copy source code
-COPY src ./src
+COPY hr-stream/src ./src
 
 # 3. Build the application
 RUN ./mvnw clean package -DskipTests

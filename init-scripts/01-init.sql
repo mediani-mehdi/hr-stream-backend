@@ -2,8 +2,7 @@
 --
 -- Production-friendly bootstrap for ATS database.
 -- NOTE:
---  - Your project also uses Flyway migrations under src/main/resources/db/migration.
---    This init script is meant for "first-time" database creation in Docker.
+--  - This init script is meant for "first-time" database creation in Docker.
 --  - All objects are created with IF NOT EXISTS (or guarded DO blocks) to reduce conflicts.
 --
 -- Requirements implemented:

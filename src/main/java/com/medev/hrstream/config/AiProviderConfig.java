@@ -63,4 +63,47 @@ public class AiProviderConfig {
                         .build())
                 .build();
     }
+
+    @Bean
+    @Qualifier("ollamaChatModel")
+    @ConditionalOnProperty(prefix = "ai.providers.ollama", name = "enabled", havingValue = "true")
+    public org.springframework.ai.ollama.OllamaChatModel ollamaChatModel(AiProviderProperties props) {
+        AiProviderProperties.ProviderConfig cfg = props.getProviders().getOllama();
+        org.springframework.ai.ollama.api.OllamaApi api = new org.springframework.ai.ollama.api.OllamaApi(cfg.getBaseUrl());
+        return new org.springframework.ai.ollama.OllamaChatModel(api, cfg.getModel());
+    }
+
+    @Bean
+    @Qualifier("lmStudioChatModel")
+    @ConditionalOnProperty(prefix = "ai.providers.lmstudio", name = "enabled", havingValue = "true")
+    public OpenAiChatModel lmStudioChatModel(AiProviderProperties props) {
+        AiProviderProperties.ProviderConfig cfg = props.getProviders().getLmStudio();
+        OpenAiApi api = OpenAiApi.builder()
+                .baseUrl(cfg.getBaseUrl())
+                .apiKey(cfg.getApiKey())
+                .build();
+        return OpenAiChatModel.builder()
+                .openAiApi(api)
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model(cfg.getModel())
+                        .build())
+                .build();
+    }
+
+    @Bean
+    @Qualifier("openAICompatibleChatModel")
+    @ConditionalOnProperty(prefix = "ai.providers.openai-compatible", name = "enabled", havingValue = "true")
+    public OpenAiChatModel openAICompatibleChatModel(AiProviderProperties props) {
+        AiProviderProperties.ProviderConfig cfg = props.getProviders().getOpenaiCompatible();
+        OpenAiApi api = OpenAiApi.builder()
+                .baseUrl(cfg.getBaseUrl())
+                .apiKey(cfg.getApiKey())
+                .build();
+        return OpenAiChatModel.builder()
+                .openAiApi(api)
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model(cfg.getModel())
+                        .build())
+                .build();
+    }
 }

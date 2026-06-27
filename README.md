@@ -254,7 +254,6 @@ SPRING_REDIS_PORT=6379
 SPRING_REDIS_PASSWORD=redis123
 SERVER_PORT=8090
 SPRING_PROFILES_ACTIVE=docker
-SPRING_FLYWAY_ENABLED=false
 GEMINI_API_KEY=<from .env>
 ```
 
@@ -415,7 +414,7 @@ Authorization: Bearer <your-jwt-token>
 
 **Problem**: Tables don't exist after starting containers
 
-**Solution**: Flyway migrations are disabled in Docker. You need to initialize the database:
+**Solution**: The app uses Hibernate schema update at startup. For a fresh Docker database, initialize it with the bootstrap script or reset the volume:
 
 ```bash
 # Run the init script
@@ -442,19 +441,7 @@ If it failed, run it again:
 docker compose run --rm minio-setup
 ```
 
-#### 3. Flyway Migrations Not Running
-
-**Problem**: Application starts but tables are missing
-
-**Solution**: Enable Flyway in Docker:
-
-```bash
-docker compose stop app
-docker compose run --rm app mvn flyway:migrate
-docker compose start app
-```
-
-#### 4. Connection Issues
+#### 3. Connection Issues
 
 **Problem**: Services can't connect
 
@@ -645,16 +632,9 @@ mvn spring-boot:run
 mvn test
 ```
 
-### Database Migrations
+### Database Schema
 
-Create a new migration file in `src/main/resources/db/migration/`:
-
-```bash
-# V{version}__{description}.sql
-# Example: V2__create_candidates_table.sql
-```
-
-Flyway will automatically run migrations on startup.
+The application currently relies on Spring Data JPA and Hibernate `ddl-auto=update` to align the PostgreSQL schema during startup. Keep entity changes backward-compatible with existing data and verify them locally before deployment.
 
 ---
 
