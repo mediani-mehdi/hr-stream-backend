@@ -67,10 +67,18 @@ public class AiProviderConfig {
     @Bean
     @Qualifier("ollamaChatModel")
     @ConditionalOnProperty(prefix = "ai.providers.ollama", name = "enabled", havingValue = "true")
-    public org.springframework.ai.ollama.OllamaChatModel ollamaChatModel(AiProviderProperties props) {
+    public OpenAiChatModel ollamaChatModel(AiProviderProperties props) {
         AiProviderProperties.ProviderConfig cfg = props.getProviders().getOllama();
-        org.springframework.ai.ollama.api.OllamaApi api = new org.springframework.ai.ollama.api.OllamaApi(cfg.getBaseUrl());
-        return new org.springframework.ai.ollama.OllamaChatModel(api, cfg.getModel());
+        OpenAiApi api = OpenAiApi.builder()
+                .baseUrl(cfg.getBaseUrl())
+                .apiKey(cfg.getApiKey())
+                .build();
+        return OpenAiChatModel.builder()
+                .openAiApi(api)
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model(cfg.getModel())
+                        .build())
+                .build();
     }
 
     @Bean

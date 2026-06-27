@@ -5,8 +5,7 @@ import com.medev.hrstream.job.Job;
 import com.medev.hrstream.job.JobRepository;
 import com.medev.hrstream.job.JobResponseDTO;
 import com.medev.hrstream.job.JobStatus;
-import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.ollama.api.OllamaOptions;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +15,12 @@ import java.util.UUID;
 @Service
 public class OllamaService {
 
-    private final OllamaChatModel chatModel;
+    private final OpenAiChatModel chatModel;
     private final String modelName;
     private final JobRepository jobRepository;
     private final ApplicationProperties applicationProperties;
 
-    public OllamaService(OllamaChatModel chatModel, 
+    public OllamaService(OpenAiChatModel chatModel, 
                         @Qualifier("ollamaModelName") String modelName,
                         JobRepository jobRepository,
                         ApplicationProperties applicationProperties) {
@@ -87,11 +86,7 @@ public class OllamaService {
 
         try {
             // Step 4: Generate description using AI
-            String description = chatModel.generate(
-                prompt.toString(),
-                OllamaOptions.builder().model(modelName).build()
-            ).getResult().getOutput().getText();
-            
+            String description = chatModel.generate(prompt.toString()).getResult().getOutput().getText();
             savedJob.setDescription(description);
 
             // Step 5: Save the job again with description and application link
@@ -120,10 +115,7 @@ public class OllamaService {
 
     public String generateDescription(String prompt) {
         try {
-            return chatModel.generate(
-                prompt,
-                OllamaOptions.builder().model(modelName).build()
-            ).getResult().getOutput().getText();
+            return chatModel.generate(prompt).getResult().getOutput().getText();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate Ollama response", e);
         }

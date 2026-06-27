@@ -1,8 +1,8 @@
 package com.medev.hrstream.AimodelService.ollama;
 
-import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,13 +16,21 @@ public class OllamaConfig {
     }
 
     @Bean
-    public OllamaApi ollamaApi() {
-        return new OllamaApi(ollamaProperties.getBaseUrl());
+    public OpenAiApi ollamaApi() {
+        return OpenAiApi.builder()
+                .baseUrl(ollamaProperties.getBaseUrl())
+                .apiKey(ollamaProperties.getApiKey())
+                .build();
     }
 
     @Bean
-    public OllamaChatModel ollamaChatModel(OllamaApi ollamaApi) {
-        return new OllamaChatModel(ollamaApi, ollamaProperties.getModel());
+    public OpenAiChatModel ollamaChatModel(OpenAiApi ollamaApi) {
+        return OpenAiChatModel.builder()
+                .openAiApi(ollamaApi)
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .model(ollamaProperties.getModel())
+                        .build())
+                .build();
     }
 
     @Bean
