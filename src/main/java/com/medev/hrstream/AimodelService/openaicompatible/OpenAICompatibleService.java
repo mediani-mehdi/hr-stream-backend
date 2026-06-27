@@ -6,6 +6,7 @@ import com.medev.hrstream.job.JobRepository;
 import com.medev.hrstream.job.JobResponseDTO;
 import com.medev.hrstream.job.JobStatus;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,7 @@ public class OpenAICompatibleService {
 
         try {
             // Step 4: Generate description using AI
-            String description = chatModel.generate(prompt.toString()).getResult().getOutput().getText();
+            String description = chatModel.generate(new Prompt(prompt.toString())).getResult().getOutput().getText();
             savedJob.setDescription(description);
 
             // Step 5: Save the job again with description and application link
@@ -116,7 +117,7 @@ public class OpenAICompatibleService {
 
     public String generateDescription(String prompt) {
         try {
-            return chatModel.generate(prompt).getResult().getOutput().getText();
+            return chatModel.generate(new Prompt(prompt)).getResult().getOutput().getText();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate OpenAI Compatible response", e);
         }
