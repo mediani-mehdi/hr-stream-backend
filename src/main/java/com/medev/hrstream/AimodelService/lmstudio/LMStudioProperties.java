@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "lmstudio")
 public class LMStudioProperties {
     private String baseUrl = "http://localhost:1234";
-    private String apiKey;
+    private String apiKey = "test";
     private String model = "lnvidia/nemotron-3-nano-4b";
     private long timeoutMs = 30000;
 }

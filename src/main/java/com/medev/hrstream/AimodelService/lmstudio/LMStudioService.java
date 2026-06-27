@@ -23,10 +23,10 @@ public class LMStudioService {
     private final JobRepository jobRepository;
     private final ApplicationProperties applicationProperties;
 
-    public LMStudioService(OpenAiChatModel chatModel,
-                          @Qualifier("lmStudioModelName") String modelName,
-                          JobRepository jobRepository,
-                          ApplicationProperties applicationProperties) {
+    public LMStudioService(@Qualifier("lmStudioChatModel") OpenAiChatModel chatModel,
+                           @Qualifier("lmStudioModelName") String modelName,
+                           JobRepository jobRepository,
+                           ApplicationProperties applicationProperties) {
         this.chatModel = chatModel;
         this.modelName = modelName;
         this.jobRepository = jobRepository;
@@ -89,7 +89,7 @@ public class LMStudioService {
 
         try {
             // Step 4: Generate description using AI
-            String description = chatModel.generate(new Prompt(prompt.toString())).getResult().getOutput().getText();
+            String description = chatModel.call(new Prompt(prompt.toString())).getResult().getOutput().getText();
             savedJob.setDescription(description);
 
             // Step 5: Save the job again with description and application link
@@ -118,7 +118,7 @@ public class LMStudioService {
 
     public String generateDescription(String prompt) {
         try {
-            return chatModel.generate(new Prompt(prompt)).getResult().getOutput().getText();
+            return chatModel.call(new Prompt(prompt)).getResult().getOutput().getText();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate LM Studio response", e);
         }

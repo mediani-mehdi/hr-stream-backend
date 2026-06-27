@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "openai-compatible")
 public class OpenAICompatibleProperties {
     private String baseUrl = "http://localhost:8000";
-    private String apiKey;
+    private String apiKey = "test";
     private String model = "gpt-4";
     private long timeoutMs = 30000;
 }

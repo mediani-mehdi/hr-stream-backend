@@ -1,6 +1,6 @@
 package com.medev.hrstream.job;
 
-import com.medev.hrstream.Gemini.GeminiService;
+import com.medev.hrstream.AimodelService.AIModelService;
 import com.medev.hrstream.common.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class JobController {
 
     private final JobService jobService;
-    private final GeminiService geminiService;
-    public JobController(JobService jobService, GeminiService geminiService) {
+    private final AIModelService aiModelService;
+    public JobController(JobService jobService, AIModelService aiModelService) {
         this.jobService = jobService;
-        this.geminiService = geminiService;
+        this.aiModelService = aiModelService;
     }
 
 
@@ -50,8 +50,8 @@ public class JobController {
 
     @PostMapping("/generate-description")
     public ResponseEntity<String> generateJobDescription(@RequestBody Job job) {
-        String description = geminiService.generateJobDescription(job).getDescription();
-        return ResponseEntity.ok(description);
+        JobResponseDTO response = aiModelService.generateJobDescription("lmstudio", job);
+        return ResponseEntity.ok(response.getDescription());
     }
 
     @PostMapping("/{jobId}/generate")
