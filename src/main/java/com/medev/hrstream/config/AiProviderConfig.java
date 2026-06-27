@@ -65,23 +65,6 @@ public class AiProviderConfig {
     }
 
     @Bean
-    @Qualifier("ollamaChatModel")
-    @ConditionalOnProperty(prefix = "ai.providers.ollama", name = "enabled", havingValue = "true")
-    public OpenAiChatModel ollamaChatModel(AiProviderProperties props) {
-        AiProviderProperties.ProviderConfig cfg = props.getProviders().getOllama();
-        OpenAiApi api = OpenAiApi.builder()
-                .baseUrl(cfg.getBaseUrl())
-                .apiKey(cfg.getApiKey())
-                .build();
-        return OpenAiChatModel.builder()
-                .openAiApi(api)
-                .defaultOptions(OpenAiChatOptions.builder()
-                        .model(cfg.getModel())
-                        .build())
-                .build();
-    }
-
-    @Bean
     @Qualifier("lmStudioChatModel")
     @ConditionalOnProperty(prefix = "ai.providers.lmstudio", name = "enabled", havingValue = "true")
     public OpenAiChatModel lmStudioChatModel(AiProviderProperties props) {

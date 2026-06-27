@@ -1,7 +1,6 @@
 package com.medev.hrstream.AimodelService;
 
 import com.medev.hrstream.AimodelService.lmstudio.LMStudioService;
-import com.medev.hrstream.AimodelService.ollama.OllamaService;
 import com.medev.hrstream.AimodelService.openaicompatible.OpenAICompatibleService;
 import com.medev.hrstream.Gemini.GeminiService;
 import com.medev.hrstream.job.Job;
@@ -22,18 +21,11 @@ public class AIModelService {
     private final Map<String, Function<Job, JobResponseDTO>> modelToServiceMap;
     private final Map<String, Function<String, String>> modelToGenerateMap;
 
-    public AIModelService(OllamaService ollamaService,
-                          LMStudioService lmStudioService,
+    public AIModelService(LMStudioService lmStudioService,
                           OpenAICompatibleService openAICompatibleService,
                           GeminiService geminiService) {
         this.modelToServiceMap = new HashMap<>();
         this.modelToGenerateMap = new HashMap<>();
-        
-        // Register Ollama models
-        registerModel("ollama", ollamaService::generateJobDescription);
-        registerModel("llama", ollamaService::generateJobDescription);
-        registerModel("llama3", ollamaService::generateJobDescription);
-        registerModel("llama3.2", ollamaService::generateJobDescription);
         
         // Register LM Studio models
         registerModel("lmstudio", lmStudioService::generateJobDescription);
@@ -54,8 +46,6 @@ public class AIModelService {
         registerModel("gemini-flash", geminiService::generateJobDescription);
         
         // Register text generation mappings
-        registerTextModel("ollama", ollamaService::generateDescription);
-        registerTextModel("llama", ollamaService::generateDescription);
         registerTextModel("lmstudio", lmStudioService::generateDescription);
         registerTextModel("lm-studio", lmStudioService::generateDescription);
         registerTextModel("openai", openAICompatibleService::generateDescription);
