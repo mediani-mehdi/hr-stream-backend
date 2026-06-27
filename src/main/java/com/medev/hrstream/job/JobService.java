@@ -1,6 +1,6 @@
 package com.medev.hrstream.job;
 
-import com.medev.hrstream.Gemini.GeminiService;
+import com.medev.hrstream.AimodelService.AIModelService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,11 +11,12 @@ import org.springframework.stereotype.Service;
 public class JobService {
 
     private final JobRepository jobRepository;
-    private final GeminiService geminiService;
+    private final AIModelService aiModelService;
+    private static final String DEFAULT_AI_MODEL = "lmstudio";
 
-    public JobService(JobRepository jobRepository, GeminiService geminiService) {
+    public JobService(JobRepository jobRepository, AIModelService aiModelService) {
         this.jobRepository = jobRepository;
-        this.geminiService = geminiService;
+        this.aiModelService = aiModelService;
     }
 
     public String save(Job job) {
@@ -26,7 +27,8 @@ public class JobService {
 
     public String generate(Job job) {
         job.setStatus(JobStatus.OPEN);
-        job.setDescription(geminiService.generateJobDescription(job).getDescription());
+        JobResponseDTO response = aiModelService.generateJobDescription(DEFAULT_AI_MODEL, job);
+        job.setDescription(response.getDescription());
         jobRepository.save(job);
         return "Job generated successfully";
     }
@@ -74,7 +76,7 @@ public class JobService {
 
     public JobResponseDTO generateFromId(String jobId) {
         Job job = findById(jobId);
-        return geminiService.generateJobDescription(job);
+        return aiModelService.generateJobDescription(DEFAULT_AI_MODEL, job);
     }
 
     public Page<JobResponseDTO> findAll(int page, int size, String sortBy, String direction) {

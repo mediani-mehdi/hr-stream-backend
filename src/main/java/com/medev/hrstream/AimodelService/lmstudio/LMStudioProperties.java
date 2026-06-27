@@ -10,6 +10,6 @@ import org.springframework.stereotype.Component;
 public class LMStudioProperties {
     private String baseUrl = "http://localhost:1234";
     private String apiKey;
-    private String model = "lm-studio-community/Meta-Llama-3.2-3B-Instruct";
+    private String model = "lnvidia/nemotron-3-nano-4b";
     private long timeoutMs = 30000;
 }
