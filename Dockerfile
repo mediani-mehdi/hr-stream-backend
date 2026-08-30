@@ -4,19 +4,19 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # 1. Copy Maven wrapper and pom.xml
-#    Paths are relative to the build context (project root)
-COPY hr-stream/.mvn .mvn
-COPY hr-stream/mvnw .
-COPY hr-stream/pom.xml .
+#    Paths are relative to the hr-stream build context.
+COPY .mvn .mvn
+COPY mvnw .
+COPY pom.xml .
 
 # Make mvnw executable
 RUN chmod +x mvnw
 
 # 2. Copy source code
-COPY hr-stream/src ./src
+COPY src ./src
 
 # 3. Build the application
-RUN ./mvnw clean package -DskipTests
+RUN --mount=type=cache,target=/root/.m2 ./mvnw clean package -DskipTests
 
 # ========== RUNTIME STAGE ==========
 FROM eclipse-temurin:17-jre-jammy

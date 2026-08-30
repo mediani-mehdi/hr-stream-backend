@@ -41,12 +41,13 @@ public class JobApplication {
     private LocalDateTime applicationDate;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "varchar(50)")
     @Builder.Default
     private ApplicationStatus status = ApplicationStatus.SUBMITTED;
 
     // --- Pipeline state ---
     @Enumerated(EnumType.STRING)
-    @Column(name = "pipeline_status", nullable = false)
+    @Column(name = "pipeline_status", columnDefinition = "varchar(50)", nullable = false)
     @Builder.Default
     private PipelineStatus pipelineStatus = PipelineStatus.QUEUED;
 
@@ -75,7 +76,7 @@ public class JobApplication {
 
     // --- Error diagnostics ---
     @Enumerated(EnumType.STRING)
-    @Column(name = "processing_error_code", length = 64)
+    @Column(name = "processing_error_code", columnDefinition = "varchar(64)")
     private ProcessingErrorCode processingErrorCode;
 
     @Column(name = "processing_error_message", columnDefinition = "TEXT")

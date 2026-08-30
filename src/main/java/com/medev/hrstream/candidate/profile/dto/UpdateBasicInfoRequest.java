@@ -14,9 +14,6 @@ public class UpdateBasicInfoRequest {
     @NotBlank
     private String lastName;
 
-    @Email
-    private String email;
-
     @Size(max = 30)
     private String phone;
 

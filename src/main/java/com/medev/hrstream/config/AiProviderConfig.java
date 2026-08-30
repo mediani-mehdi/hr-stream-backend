@@ -65,9 +65,9 @@ public class AiProviderConfig {
     }
 
     @Bean
-    @Qualifier("lmStudioChatModel")
-    @ConditionalOnProperty(prefix = "ai.providers.lmstudio", name = "enabled", havingValue = "true")
-    public OpenAiChatModel lmStudioChatModel(AiProviderProperties props) {
+    @Qualifier("scoringLmStudioChatModel")
+    @ConditionalOnProperty(prefix = "ai.providers.lm-studio", name = "enabled", havingValue = "true")
+    public OpenAiChatModel scoringLmStudioChatModel(AiProviderProperties props) {
         AiProviderProperties.ProviderConfig cfg = props.getProviders().getLmStudio();
         OpenAiApi api = OpenAiApi.builder()
                 .baseUrl(cfg.getBaseUrl())

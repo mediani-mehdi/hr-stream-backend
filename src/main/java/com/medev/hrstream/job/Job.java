@@ -26,6 +26,7 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     private String title;
+    private String department;
     @Column(columnDefinition = "TEXT")
     private String description;
     private String location;
@@ -68,4 +69,14 @@ public class Job {
 
     @CreatedBy
     private String createdBy;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.applicationToken == null || this.applicationToken.trim().isEmpty()) {
+            this.applicationToken = java.util.UUID.randomUUID().toString();
+        }
+        if (this.deleted == null) {
+            this.deleted = false;
+        }
+    }
 }

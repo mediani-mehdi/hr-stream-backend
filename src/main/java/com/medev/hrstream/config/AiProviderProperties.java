@@ -28,7 +28,7 @@ public class AiProviderProperties {
     @Data
     public static class ProviderConfig {
         private boolean enabled = false;
-        private String apiKey;
+        private String apiKey = "key";
         private String baseUrl;
         private String model;
         private long timeoutMs = 30_000;

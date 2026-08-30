@@ -27,7 +27,6 @@ public class CandidateProfileService {
         Candidate candidate = findCandidate(candidateId);
         candidate.setFirstName(request.getFirstName());
         candidate.setLastName(request.getLastName());
-        candidate.setEmail(request.getEmail());
         candidate.setPhone(request.getPhone());
         candidate.setHeadline(request.getHeadline());
         candidate.setSummary(request.getSummary());
@@ -198,15 +197,18 @@ public class CandidateProfileService {
 
     public ProfileCompletenessResponse getCompleteness(UUID candidateId) {
         Candidate candidate = findCandidate(candidateId);
+        boolean hasBasicInfo = candidate.getFirstName() != null && candidate.getLastName() != null;
+        boolean hasEducation = !candidate.getEducation().isEmpty();
         boolean hasExperience = !candidate.getExperience().isEmpty();
         boolean hasSkills = !candidate.getSkills().isEmpty();
+        boolean hasLanguages = !candidate.getLanguages().isEmpty();
         return ProfileCompletenessResponse.builder()
-                .hasBasicInfo(candidate.getFirstName() != null && candidate.getLastName() != null)
-                .hasEducation(!candidate.getEducation().isEmpty())
+                .hasBasicInfo(hasBasicInfo)
+                .hasEducation(hasEducation)
                 .hasExperience(hasExperience)
                 .hasSkills(hasSkills)
-                .hasLanguages(!candidate.getLanguages().isEmpty())
-                .readyToApply(hasExperience && hasSkills)
+                .hasLanguages(hasLanguages)
+                .readyToApply(hasBasicInfo && hasExperience && hasEducation && hasSkills)
                 .build();
     }
 
@@ -219,16 +221,16 @@ public class CandidateProfileService {
 
     private void ensureCollections(Candidate candidate) {
         if (candidate.getEducation() == null) {
-            candidate.setEducation(new java.util.ArrayList<>());
+            candidate.setEducation(new java.util.HashSet<>());
         }
         if (candidate.getExperience() == null) {
-            candidate.setExperience(new java.util.ArrayList<>());
+            candidate.setExperience(new java.util.HashSet<>());
         }
         if (candidate.getSkills() == null) {
-            candidate.setSkills(new java.util.ArrayList<>());
+            candidate.setSkills(new java.util.HashSet<>());
         }
         if (candidate.getLanguages() == null) {
-            candidate.setLanguages(new java.util.ArrayList<>());
+            candidate.setLanguages(new java.util.HashSet<>());
         }
     }
 }

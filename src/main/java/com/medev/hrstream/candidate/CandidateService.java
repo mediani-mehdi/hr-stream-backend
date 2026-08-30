@@ -41,8 +41,13 @@ public class CandidateService {
                     existing.setNiveauEtude(candidateData.getNiveauEtude());
                     existing.setDomaineExpertise(candidateData.getDomaineExpertise());
                     existing.setExperienceProfessionnelle(candidateData.getExperienceProfessionnelle());
+                    existing.setHeadline(candidateData.getHeadline());
+                    existing.setSummary(candidateData.getSummary());
+                    existing.setLocation(candidateData.getLocation());
+                    existing.setLinkedinUrl(candidateData.getLinkedinUrl());
                     return candidateRepository.save(existing);
                 })
+
                 .orElseGet(() -> candidateRepository.save(candidateData));
 
         // 2) Upload resume and store metadata on candidate
@@ -169,11 +174,14 @@ public class CandidateService {
 
         existingCandidate.setFirstName(updatedCandidate.getFirstName());
         existingCandidate.setLastName(updatedCandidate.getLastName());
-        existingCandidate.setEmail(updatedCandidate.getEmail());
         existingCandidate.setPhone(updatedCandidate.getPhone());
         existingCandidate.setNiveauEtude(updatedCandidate.getNiveauEtude());
         existingCandidate.setDomaineExpertise(updatedCandidate.getDomaineExpertise());
         existingCandidate.setExperienceProfessionnelle(updatedCandidate.getExperienceProfessionnelle());
+        existingCandidate.setHeadline(updatedCandidate.getHeadline());
+        existingCandidate.setSummary(updatedCandidate.getSummary());
+        existingCandidate.setLocation(updatedCandidate.getLocation());
+        existingCandidate.setLinkedinUrl(updatedCandidate.getLinkedinUrl());
 
         return candidateRepository.save(existingCandidate);
     }

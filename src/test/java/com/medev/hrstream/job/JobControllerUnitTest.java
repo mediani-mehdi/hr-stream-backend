@@ -3,6 +3,7 @@ package com.medev.hrstream.job;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.medev.hrstream.Gemini.GeminiService;
 import com.medev.hrstream.common.PageResponse;
+import com.medev.hrstream.job.lifecycle.ClosedReason;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,7 +77,7 @@ class JobControllerUnitTest {
     void publish_ShouldReturnSuccessMessage() throws Exception {
         when(jobService.publish("job-123", "OPEN")).thenReturn("Published Successfully");
 
-        mockMvc.perform(post("/jobs/job-123/OPEN"))
+        mockMvc.perform(post("/jobs/job-123/publish/OPEN"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").value("Published Successfully"));
     }
@@ -124,7 +125,7 @@ class JobControllerUnitTest {
     @Test
     void findAll_ShouldReturnPageOfJobs() throws Exception {
         Page<JobResponseDTO> jobPage = new PageImpl<>(Collections.singletonList(mockJobResponse));
-        when(jobService.findAll(anyInt(), anyInt(), anyString(), anyString())).thenReturn(jobPage);
+        when(jobService.findAll(any(), any(), any(), any(), any(), anyInt(), anyInt(), anyString(), anyString())).thenReturn(jobPage);
 
         mockMvc.perform(get("/jobs")
                         .param("page", "0")

@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class JobService {
@@ -51,6 +52,7 @@ public class JobService {
         Job existingJob = findById(jobId);
 
         existingJob.setTitle(updatedJob.getTitle());
+        existingJob.setDepartment(updatedJob.getDepartment());
         existingJob.setDescription(updatedJob.getDescription());
         existingJob.setLocation(updatedJob.getLocation());
         existingJob.setExperienceLevel(updatedJob.getExperienceLevel());
@@ -79,14 +81,27 @@ public class JobService {
         return aiModelService.generateJobDescription(DEFAULT_AI_MODEL, job);
     }
 
-    public Page<JobResponseDTO> findAll(int page, int size, String sortBy, String direction) {
+    public Page<JobResponseDTO> findAll(List<JobStatus> statuses, String department, String location, com.medev.hrstream.job.lifecycle.ClosedReason closedReason, String search, int page, int size, String sortBy, String direction) {
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return jobRepository.findAllActive(pageable).map(this::mapToResponseDTO);
+        boolean hasStatuses = statuses != null && !statuses.isEmpty();
+        String deptFilter = (department != null && !department.trim().isEmpty() && !department.equalsIgnoreCase("all")) ? department : null;
+        String locationFilter = (location != null && !location.trim().isEmpty() && !location.equalsIgnoreCase("all")) ? location : null;
+        String searchFilter = (search != null && !search.trim().isEmpty()) ? "%" + search.trim().toLowerCase() + "%" : null;
+
+        return jobRepository.findAllActiveFiltered(statuses, hasStatuses, deptFilter, locationFilter, closedReason, searchFilter, pageable).map(this::mapToResponseDTO);
+    }
+
+    public List<String> findUniqueDepartments() {
+        return jobRepository.findUniqueDepartments();
+    }
+
+    public List<String> findUniqueLocations() {
+        return jobRepository.findUniqueLocations();
     }
 
     public Page<JobResponseDTO> findAllPublicJobs(Pageable pageable) {
@@ -95,7 +110,8 @@ public class JobService {
 
     public JobResponseDTO getPublicJobBySlug(String slug) {
         Job job = jobRepository.findByApplicationToken(slug)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseGet(() -> jobRepository.findById(slug)
+                        .orElseThrow(() -> new RuntimeException("Job not found")));
         if (Boolean.TRUE.equals(job.getDeleted())) {
             throw new RuntimeException("Job not available");
         }
@@ -106,6 +122,7 @@ public class JobService {
         return JobResponseDTO.builder()
                 .id(job.getId())
                 .title(job.getTitle())
+                .department(job.getDepartment())
                 .slug(job.getApplicationToken())
                 .description(job.getDescription())
                 .applicationLink(job.getApplyLink())

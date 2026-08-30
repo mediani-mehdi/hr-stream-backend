@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GeminiConfig {
 
-    @Value("${gemini.api-key}")
+    @Value("${gemini.api-key:${ai.providers.gemini.api-key:}}")
     private String apiKey;
 
     @Bean
@@ -18,7 +18,7 @@ public class GeminiConfig {
     }
 
     @Bean
-    public String geminiModelName(@Value("${gemini.model:gemini-2.0-flash}") String modelName) {
+    public String geminiModelName(@Value("${gemini.model:${ai.providers.gemini.model:gemini-2.0-flash}}") String modelName) {
         return modelName.replace("\"", "").trim();
     }
 }

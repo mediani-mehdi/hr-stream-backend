@@ -1,10 +1,11 @@
 package com.medev.hrstream.candidate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -18,7 +19,7 @@ public class Candidate {
     private String id;
     private String firstName;
     private String lastName;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, updatable = false)
     private String email;
     @Column(nullable = false)
     private String password;
@@ -44,20 +45,28 @@ public class Candidate {
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
-    private List<CandidateEducation> education = new ArrayList<>();
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<CandidateEducation> education = new HashSet<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
-    private List<CandidateExperience> experience = new ArrayList<>();
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<CandidateExperience> experience = new HashSet<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
-    private List<CandidateSkill> skills = new ArrayList<>();
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<CandidateSkill> skills = new HashSet<>();
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     @ToString.Exclude
-    private List<CandidateLanguage> languages = new ArrayList<>();
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<CandidateLanguage> languages = new HashSet<>();
 }

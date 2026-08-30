@@ -74,8 +74,12 @@ public class CandidateController {
             return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).build();
         }
         Candidate me = candidateService.findByEmail(principal.getName());
-        CvResponse response = candidateService.getCv(me.getId());
-        return ResponseEntity.ok(response);
+        try {
+            CvResponse response = candidateService.getCv(me.getId());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.noContent().build();
+        }
     }
 
     @GetMapping
@@ -127,8 +131,12 @@ public class CandidateController {
      */
     @GetMapping("/{candidateId}/cv")
     public ResponseEntity<CvResponse> getCv(@PathVariable String candidateId) {
-        CvResponse response = candidateService.getCv(candidateId);
-        return ResponseEntity.ok(response);
+        try {
+            CvResponse response = candidateService.getCv(candidateId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**

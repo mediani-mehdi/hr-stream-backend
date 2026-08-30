@@ -22,7 +22,7 @@ public class PublicJobController {
     }
 
     @Operation(summary = "List all public jobs")
-    @GetMapping("/public/jobs")
+    @GetMapping({"/public/jobs", "/public/jobs/"})
     public ResponseEntity<PageResponse<JobResponseDTO>> getAllPublicJobs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -46,7 +46,7 @@ public class PublicJobController {
     }
 
     @Operation(summary = "Public job details by slug")
-    @GetMapping("/public/jobs/{slug}")
+    @GetMapping({"/public/jobs/{slug}", "/public/jobs/{slug}/"})
     public ResponseEntity<JobResponseDTO> getJob(@PathVariable String slug) {
         return ResponseEntity.ok(jobService.getPublicJobBySlug(slug));
     }

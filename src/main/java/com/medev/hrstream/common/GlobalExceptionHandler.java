@@ -4,6 +4,7 @@ import com.medev.hrstream.jobapplication.submission.CvFileRejectedException;
 import com.medev.hrstream.jobapplication.submission.DuplicateApplicationException;
 import com.medev.hrstream.jobapplication.submission.InvalidApplicationTokenException;
 import com.medev.hrstream.jobapplication.submission.JobClosedException;
+import com.medev.hrstream.jobapplication.submission.ProfileIncompleteException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CvFileRejectedException.class)
     public ResponseEntity<ApiError> handleCvRejected(CvFileRejectedException ex, HttpServletRequest request) {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request, "CV_FILE_REJECTED");
+    }
+
+    @ExceptionHandler(ProfileIncompleteException.class)
+    public ResponseEntity<ApiError> handleProfileIncomplete(ProfileIncompleteException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request, "PROFILE_INCOMPLETE");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

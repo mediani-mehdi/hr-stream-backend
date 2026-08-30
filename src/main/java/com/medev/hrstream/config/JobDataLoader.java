@@ -73,6 +73,10 @@ public class JobDataLoader implements CommandLineRunner {
                 "Iota LLC", "Kappa Group", "Lambda Inc", "Mu Technologies"
             );
 
+            List<String> depts = Arrays.asList(
+                "Engineering", "Product", "Sales", "Marketing", "HR", "Design"
+            );
+
             // Required skills
             List<List<String>> requiredSkillsSets = Arrays.asList(
                 Arrays.asList("Java", "Spring Boot", "Hibernate", "SQL"),
@@ -147,6 +151,7 @@ public class JobDataLoader implements CommandLineRunner {
 
                 Job job = Job.builder()
                     .title(title)
+                    .department(depts.get(random.nextInt(depts.size())))
                     .description(description)
                     .location(locations.get(random.nextInt(locations.size())))
                     .experienceLevel(experienceLevels.get(random.nextInt(experienceLevels.size())))

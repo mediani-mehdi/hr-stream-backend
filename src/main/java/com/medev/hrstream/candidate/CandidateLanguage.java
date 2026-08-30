@@ -21,6 +21,7 @@ public class CandidateLanguage {
     @JoinColumn(name = "candidate_id", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private Candidate candidate;
 
     @Column(nullable = false)

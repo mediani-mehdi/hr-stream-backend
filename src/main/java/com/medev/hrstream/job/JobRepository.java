@@ -38,4 +38,29 @@ public interface JobRepository extends JpaRepository<Job, String> {
     @Query("SELECT j FROM Job j WHERE j.deleted = false AND j.status = 'OPEN' " +
            "AND j.dateLimte IS NOT NULL AND j.dateLimte < :now")
     List<Job> findOpenJobsWithDeadlineBefore(@Param("now") LocalDateTime now);
+
+    @Query("SELECT j FROM Job j WHERE j.deleted = false " +
+           "AND (:hasStatuses = false OR j.status IN :statuses) " +
+           "AND (:department IS NULL OR j.department = :department) " +
+           "AND (:location IS NULL OR j.location = :location) " +
+           "AND (:closedReason IS NULL OR j.closedReason = :closedReason) " +
+           "AND (:search IS NULL OR LOWER(j.title) LIKE :search)")
+    Page<Job> findAllActiveFiltered(
+            @Param("statuses") List<JobStatus> statuses,
+            @Param("hasStatuses") boolean hasStatuses,
+            @Param("department") String department,
+            @Param("location") String location,
+            @Param("closedReason") com.medev.hrstream.job.lifecycle.ClosedReason closedReason,
+            @Param("search") String search,
+            Pageable pageable);
+
+    @Query("SELECT DISTINCT j.department FROM Job j WHERE j.deleted = false AND j.department IS NOT NULL")
+    List<String> findUniqueDepartments();
+
+    @Query("SELECT DISTINCT j.location FROM Job j WHERE j.deleted = false AND j.location IS NOT NULL")
+    List<String> findUniqueLocations();
+
+    long countByDeletedFalse();
+
+    long countByDeletedFalseAndStatus(JobStatus status);
 }

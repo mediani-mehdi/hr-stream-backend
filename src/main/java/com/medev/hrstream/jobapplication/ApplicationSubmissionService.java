@@ -1,6 +1,7 @@
 package com.medev.hrstream.jobapplication;
 
 import com.medev.hrstream.candidate.Candidate;
+import com.medev.hrstream.candidate.CandidateRepository;
 import com.medev.hrstream.file.ResumeStorageService;
 import com.medev.hrstream.job.Job;
 import com.medev.hrstream.job.JobRepository;
@@ -26,16 +27,19 @@ public class ApplicationSubmissionService {
     private final JobApplicationRepository applications;
     private final ResumeStorageService storage;
     private final ScoringPipelineOrchestrator orchestrator;
+    private final CandidateRepository candidateRepository;
 
     @Autowired
     public ApplicationSubmissionService(JobRepository jobs,
                                         JobApplicationRepository applications,
                                         ResumeStorageService storage,
-                                        ScoringPipelineOrchestrator orchestrator) {
+                                        ScoringPipelineOrchestrator orchestrator,
+                                        CandidateRepository candidateRepository) {
         this.jobs = jobs;
         this.applications = applications;
         this.storage = storage;
         this.orchestrator = orchestrator;
+        this.candidateRepository = candidateRepository;
     }
 
     /**
@@ -45,7 +49,8 @@ public class ApplicationSubmissionService {
     @Transactional
     public JobApplication submit(String applicationToken, Candidate candidate, MultipartFile cv) {
         Job job = jobs.findByApplicationToken(applicationToken)
-                .orElseThrow(() -> new InvalidApplicationTokenException("unknown application token"));
+                .orElseGet(() -> jobs.findById(applicationToken)
+                        .orElseThrow(() -> new InvalidApplicationTokenException("unknown application token")));
 
         if (Boolean.TRUE.equals(job.getDeleted()) || job.getStatus() != JobStatus.OPEN) {
             throw new JobClosedException("job is not accepting applications");
@@ -65,6 +70,13 @@ public class ApplicationSubmissionService {
         } catch (IllegalArgumentException e) {
             throw new CvFileRejectedException(e.getMessage());
         }
+
+        candidate.setResumeObjectKey(stored.objectKey());
+        candidate.setResumeUrl(stored.url());
+        candidate.setResumeOriginalName(stored.originalName());
+        candidate.setResumeContentType(stored.contentType());
+        candidate.setResumeSizeBytes(stored.sizeBytes());
+        candidateRepository.save(candidate);
 
         JobApplication app = JobApplication.builder()
                 .job(job)

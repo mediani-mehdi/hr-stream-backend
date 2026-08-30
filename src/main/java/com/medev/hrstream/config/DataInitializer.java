@@ -1,5 +1,7 @@
 package com.medev.hrstream.config;
 
+import com.medev.hrstream.candidate.Candidate;
+import com.medev.hrstream.candidate.CandidateRepository;
 import com.medev.hrstream.user.Role;
 import com.medev.hrstream.user.User;
 import com.medev.hrstream.user.UserRepository;
@@ -17,12 +19,13 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
+    private final CandidateRepository candidateRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.seed.admin.email:admin@hrstream.local}")
+    @Value("${app.seed.admin.email:admin@hrstream.com}")
     private String adminEmail;
 
-    @Value("${app.seed.admin.password:Admin@1234}")
+    @Value("${app.seed.admin.password:admin123}")
     private String adminPassword;
 
     @Value("${app.seed.admin.enabled:true}")
@@ -32,20 +35,38 @@ public class DataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (!seedEnabled) return;
 
-        if (userRepository.findByEmail(adminEmail).isPresent()) {
-            log.debug("Seed admin already exists, skipping.");
-            return;
-        }
+        seedStaffUser(adminEmail, adminPassword, "Admin", "HrStream", Role.ADMIN);
+        seedStaffUser("hr@hrstream.com", "hr123456", "HR", "Manager", Role.HR);
+        seedCandidate();
+    }
 
-        User admin = User.builder()
-                .firstname("Admin")
-                .lastname("HrStream")
-                .email(adminEmail)
-                .password(passwordEncoder.encode(adminPassword))
-                .role(Role.ADMIN)
+    private void seedStaffUser(String email, String password, String firstName, String lastName, Role role) {
+        if (userRepository.findByEmail(email).isPresent()) return;
+
+        User user = User.builder()
+                .firstname(firstName)
+                .lastname(lastName)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role(role)
                 .build();
 
-        userRepository.save(admin);
-        log.info("Seeded default admin user: {}", adminEmail);
+        userRepository.save(user);
+        log.info("Seeded demo {} user: {}", role, email);
+    }
+
+    private void seedCandidate() {
+        String email = "candidate@hrstream.com";
+        if (candidateRepository.findByEmail(email).isPresent()) return;
+
+        Candidate candidate = Candidate.builder()
+                .firstName("Demo")
+                .lastName("Candidate")
+                .email(email)
+                .password(passwordEncoder.encode("candidate123"))
+                .build();
+
+        candidateRepository.save(candidate);
+        log.info("Seeded demo candidate: {}", email);
     }
 }

@@ -2,6 +2,10 @@ spring:
   application:
     name: hr-stream
 
+  sql:
+    init:
+      mode: always
+
   autoconfigure:
     exclude:
       # Spring AI starters auto-configure all model types; the app wires its own beans in AiProviderConfig
@@ -68,8 +72,8 @@ app:
   seed:
     admin:
       enabled: ${SEED_ADMIN_ENABLED:true}
-      email: ${SEED_ADMIN_EMAIL:admin@hrstream.local}
-      password: ${SEED_ADMIN_PASSWORD:Admin@1234}
+      email: ${SEED_ADMIN_EMAIL:admin@hrstream.com}
+      password: ${SEED_ADMIN_PASSWORD:admin123}
   # ATS scoring pipeline configuration
   scoring:
     rule-min-score: 40
@@ -85,14 +89,19 @@ app:
     deadline-check-cron: "0 */5 * * * *"
     stuck-resumer-cron: "0 */2 * * * *"
 
-# AI provider gateway (OpenRouter primary, then Gemini, Claude, GLM)
+# AI provider gateway (LM Studio primary, then OpenRouter, Gemini, Claude, GLM)
 ai:
   providers:
-    order: [openrouter, gemini, claude, glm]
+    order: [lmstudio, openrouter, gemini, claude, glm]
+    lm-studio:
+      enabled: true
+      base-url: ${LMSTUDIO_BASE_URL:http://127.0.0.1:1234}
+      model: ${LMSTUDIO_MODEL:qwen2.5-coder-0.5b-instruct}
+      timeout-ms: 60000
     openrouter:
       enabled: ${OPENROUTER_ENABLED:false}
       api-key: ${OPENROUTER_API_KEY:}
-      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+      base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api}
       model: ${OPENROUTER_MODEL:openai/gpt-4o-mini}
       timeout-ms: 30000
     gemini:
@@ -128,6 +137,8 @@ resilience4j:
         waitDurationInOpenState: 30s
         permittedNumberOfCallsInHalfOpenState: 3
     instances:
+      ai-lmstudio:
+        baseConfig: default
       ai-openrouter:
         baseConfig: default
       ai-gemini:

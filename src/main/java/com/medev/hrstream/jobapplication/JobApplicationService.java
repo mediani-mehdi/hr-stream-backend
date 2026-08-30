@@ -27,7 +27,8 @@ public class JobApplicationService {
 
     public JobApplication applyByToken(String token, Candidate candidateData) {
         Job job = jobRepository.findByApplicationToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid application token or job not found"));
+                .orElseGet(() -> jobRepository.findById(token)
+                        .orElseThrow(() -> new RuntimeException("Invalid application token or job not found")));
 
         Candidate candidate = candidateRepository.findByEmail(candidateData.getEmail())
                 .map(existing -> {
@@ -37,9 +38,18 @@ public class JobApplicationService {
                     existing.setNiveauEtude(candidateData.getNiveauEtude());
                     existing.setDomaineExpertise(candidateData.getDomaineExpertise());
                     existing.setExperienceProfessionnelle(candidateData.getExperienceProfessionnelle());
+                    existing.setHeadline(candidateData.getHeadline());
+                    existing.setSummary(candidateData.getSummary());
+                    existing.setLocation(candidateData.getLocation());
+                    existing.setLinkedinUrl(candidateData.getLinkedinUrl());
                     return candidateRepository.save(existing);
                 })
                 .orElseGet(() -> candidateRepository.save(candidateData));
+
+        boolean alreadyApplied = repository.existsByJobIdAndCandidateId(job.getId(), candidate.getId());
+        if (alreadyApplied) {
+            throw new IllegalStateException("You have already applied to this job");
+        }
 
         JobApplication application = JobApplication.builder()
                 .job(job)
@@ -52,7 +62,8 @@ public class JobApplicationService {
 
     public JobApplication applyForSlug(String slug, Candidate candidate) {
         Job job = jobRepository.findByApplicationToken(slug)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseGet(() -> jobRepository.findById(slug)
+                        .orElseThrow(() -> new RuntimeException("Job not found")));
 
         boolean alreadyApplied = repository.existsByJobIdAndCandidateId(job.getId(), candidate.getId());
         if (alreadyApplied) {
@@ -85,6 +96,14 @@ public class JobApplicationService {
     public JobApplication findById(String id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+    }
+
+    public java.util.List<JobApplication> findByCandidateId(String candidateId) {
+        return repository.findByCandidateId(candidateId);
+    }
+
+    public java.util.List<JobApplication> findByJobId(String jobId) {
+        return repository.findByJobId(jobId);
     }
 
     public void delete(String id) {

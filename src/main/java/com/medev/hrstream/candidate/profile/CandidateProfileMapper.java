@@ -4,6 +4,7 @@ import com.medev.hrstream.candidate.*;
 import com.medev.hrstream.candidate.profile.dto.CandidateProfileResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +33,7 @@ public class CandidateProfileMapper {
                 .build();
     }
 
-    private List<CandidateProfileResponse.EducationResponse> mapEducation(List<CandidateEducation> source) {
+    private List<CandidateProfileResponse.EducationResponse> mapEducation(Collection<CandidateEducation> source) {
         return source.stream()
                 .map(item -> CandidateProfileResponse.EducationResponse.builder()
                         .id(item.getId())
@@ -47,7 +48,7 @@ public class CandidateProfileMapper {
                 .collect(Collectors.toList());
     }
 
-    private List<CandidateProfileResponse.ExperienceResponse> mapExperience(List<CandidateExperience> source) {
+    private List<CandidateProfileResponse.ExperienceResponse> mapExperience(Collection<CandidateExperience> source) {
         return source.stream()
                 .map(item -> CandidateProfileResponse.ExperienceResponse.builder()
                         .id(item.getId())
@@ -62,7 +63,7 @@ public class CandidateProfileMapper {
                 .collect(Collectors.toList());
     }
 
-    private List<CandidateProfileResponse.SkillResponse> mapSkills(List<CandidateSkill> source) {
+    private List<CandidateProfileResponse.SkillResponse> mapSkills(Collection<CandidateSkill> source) {
         return source.stream()
                 .map(item -> CandidateProfileResponse.SkillResponse.builder()
                         .id(item.getId())
@@ -72,7 +73,7 @@ public class CandidateProfileMapper {
                 .collect(Collectors.toList());
     }
 
-    private List<CandidateProfileResponse.LanguageResponse> mapLanguages(List<CandidateLanguage> source) {
+    private List<CandidateProfileResponse.LanguageResponse> mapLanguages(Collection<CandidateLanguage> source) {
         return source.stream()
                 .map(item -> CandidateProfileResponse.LanguageResponse.builder()
                         .id(item.getId())
