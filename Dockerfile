@@ -35,7 +35,7 @@ COPY --from=builder /app/target/*.jar app.jar
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8090/actuator/health || exit 1
+    CMD curl -f "http://localhost:8090/public/jobs?page=0&size=1" || exit 1
 
 EXPOSE 8090
 
